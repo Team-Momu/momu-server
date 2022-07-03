@@ -118,6 +118,7 @@ celerybeat.pid
 
 # Environments
 .env
+.env.prod
 .venv
 env/
 venv/
@@ -257,4 +258,3 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/pycharm
 /.idea/
-/.env.prod
