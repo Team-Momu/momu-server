@@ -1,5 +1,5 @@
 """
-ASGI config for momu-server project.
+ASGI config for momu project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -11,6 +11,6 @@ import os
 
 from django.core.asgi import get_asgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'momu-server.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'momu.settings')
 
 application = get_asgi_application()
