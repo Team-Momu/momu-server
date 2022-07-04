@@ -81,6 +81,15 @@ class KakaoView(views.APIView):
 		refresh_token = str(momu_token)
 		access_token = str(momu_token.access_token)
 
+		# TO ADD : 암호화 로직 추가
+		refresh_data = {
+			'kakao_id': kakao_id,
+			'refresh_token': refresh_token,
+		}
+		refresh_serializer = UserSerializer(user, data=refresh_data)
+		refresh_serializer.is_valid(raise_exception=True)
+		refresh_serializer.save()
+
 		response = JsonResponse({
 			'message': message,
 			'user': user.id,

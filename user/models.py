@@ -28,6 +28,7 @@ class UserManager(BaseUserManager):
 			kakao_id=kakao_id,
 			**extra_fields,
 		)
+		user.set_unusable_password()
 		user.save()
 		return user
 
@@ -42,6 +43,7 @@ class UserManager(BaseUserManager):
 			kakao_id=kakao_id,
 			**extra_fields,
 		)
+		user.set_unusable_password()
 		user.save()
 		return user
 
@@ -65,9 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	updated_at = models.DateTimeField(auto_now=True)
 
 	USERNAME_FIELD = 'id'
-	password = None
 	last_login = None
-	is_superuser = None
 	REQUIRED_FIELDS = ['kakao_id']
 
 	objects = UserManager()
