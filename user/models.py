@@ -67,7 +67,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 	USERNAME_FIELD = 'id'
 	password = None
 	last_login = None
-	is_superuser = False
+	is_superuser = None
 	REQUIRED_FIELDS = ['kakao_id']
 
 	objects = UserManager()
