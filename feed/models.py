@@ -62,7 +62,7 @@ class Comment(DateTime):
 	place = models.ForeignKey(Place, on_delete=models.CASCADE)
 	place_img = models.URLField(blank=True)
 	visit_flag = models.BooleanField(default=False)
-	description = models.TextField(blank=True)
+	content = models.TextField(blank=True)
 	select_flag = models.BooleanField(default=False)
 
 	def __str__(self):
