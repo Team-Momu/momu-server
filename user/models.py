@@ -29,13 +29,13 @@ class User(DateTime):
 		(5, '종이접시'),
 	]
 
-	kakao_id = models.TextField(null=True, blank=True)
+	kakao_id = models.TextField()
 	nickname = models.CharField(max_length=30, unique=True)
-	profile_img = models.URLField(null=True, blank=True)
+	profile_img = models.URLField(blank=True)
 	mbti = models.ForeignKey(Mbti, on_delete=models.CASCADE)
 	level = models.PositiveIntegerField(choices=level_choices)
 	select_count = models.PositiveIntegerField(default=0)
-	refresh_token = models.TextField(null=True, blank=True)
+	refresh_token = models.TextField(blank=True)
 
 	def __str__(self):
 		return self.nickname
