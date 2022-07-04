@@ -31,6 +31,8 @@ DEBUG = env('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
+AUTH_USER_MODEL = 'user.User'
+
 DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Application definition
@@ -47,7 +49,6 @@ INSTALLED_APPS = [
     'feed',
     'rest_framework',
     'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
 ]
 
 # cors headers
@@ -67,8 +68,7 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=4),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
-    'TOKEN_USER_CLASS': 'user.User',
+    'USER_ID_FIELD': 'id',
 
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
@@ -147,3 +147,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Media files
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+
+# Kakao
+KAKAO_CONFIG = {
+    'KAKAO_REST_API_KEY': env('KAKAO_REST_API_KEY'),
+    'KAKAO_REDIRECT_URI': 'http://localhost:8000/user/kakao',
+    'KAKAO_CLIENT_SECRET_KEY': env('KAKAO_CLIENT_SECRET_KEY'),
+}
