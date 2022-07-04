@@ -35,7 +35,7 @@ class Post(DateTime):
 	drink = models.PositiveIntegerField(choices=drink_choices)
 	member_count = models.PositiveIntegerField(choices=member_choices)
 	comment_count = models.PositiveIntegerField(default=0)
-	description = models.TextField(blank=True)
+	description = models.TextField(null=True)
 
 	def __str__(self):
 		return self.id
@@ -60,9 +60,9 @@ class Comment(DateTime):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
 	post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
 	place = models.ForeignKey(Place, on_delete=models.CASCADE)
-	place_img = models.URLField(blank=True)
+	place_img = models.URLField(null=True)
 	visit_flag = models.BooleanField(default=False)
-	description = models.TextField(blank=True)
+	description = models.TextField(null=True)
 	select_flag = models.BooleanField(default=False)
 
 	def __str__(self):

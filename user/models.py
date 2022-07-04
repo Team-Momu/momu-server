@@ -31,11 +31,11 @@ class User(DateTime):
 
 	kakao_id = models.TextField()
 	nickname = models.CharField(max_length=30, unique=True)
-	profile_img = models.URLField(blank=True)
+	profile_img = models.URLField(null=True)
 	mbti = models.ForeignKey(Mbti, on_delete=models.CASCADE)
 	level = models.PositiveIntegerField(choices=level_choices)
 	select_count = models.PositiveIntegerField(default=0)
-	refresh_token = models.TextField(blank=True)
+	refresh_token = models.TextField(null=True)
 
 	def __str__(self):
 		return self.nickname
