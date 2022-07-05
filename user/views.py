@@ -1,6 +1,7 @@
 import requests
 from django.http import JsonResponse
 from django.shortcuts import redirect
+from django.core import signing
 from django.contrib.auth import get_user_model
 from rest_framework import views
 from rest_framework.response import Response
@@ -81,10 +82,12 @@ class KakaoView(views.APIView):
 		refresh_token = str(momu_token)
 		access_token = str(momu_token.access_token)
 
-		# TO ADD : 암호화 로직 추가
+		signer = signing.Signer(salt='salt')
+		hashed_refresh = signer.sign(refresh_token)
+
 		refresh_data = {
 			'kakao_id': kakao_id,
-			'refresh_token': refresh_token,
+			'refresh_token': hashed_refresh,
 		}
 		refresh_serializer = UserSerializer(user, data=refresh_data)
 		refresh_serializer.is_valid(raise_exception=True)
