@@ -1,4 +1,5 @@
 import requests
+import uuid
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.core import signing
@@ -82,7 +83,8 @@ class KakaoView(views.APIView):
 		refresh_token = str(momu_token)
 		access_token = str(momu_token.access_token)
 
-		signer = signing.Signer(salt='salt')
+		salt = uuid.uuid4()
+		signer = signing.Signer(salt)
 		hashed_refresh = signer.sign(refresh_token)
 
 		refresh_data = {
