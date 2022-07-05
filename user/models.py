@@ -18,9 +18,6 @@ class UserManager(BaseUserManager):
 	use_in_migrations = True
 
 	def create_user(self, kakao_id, **extra_fields):
-		extra_fields.setdefault('is_staff', False)
-		extra_fields.setdefault('is_superuser', False)
-
 		if not kakao_id:
 			raise ValueError('잘못된 형식의 요청입니다.')
 
@@ -32,18 +29,15 @@ class UserManager(BaseUserManager):
 		user.save()
 		return user
 
-	def create_superuser(self, kakao_id, **extra_fields):
+	def create_superuser(self, kakao_id='None', password=None, **extra_fields):
 		extra_fields.setdefault('is_staff', True)
 		extra_fields.setdefault('is_superuser', True)
-
-		if not kakao_id:
-			raise ValueError('잘못된 형식의 요청입니다.')
 
 		user = self.model(
 			kakao_id=kakao_id,
 			**extra_fields,
 		)
-		user.set_unusable_password()
+		user.set_password(password)
 		user.save()
 		return user
 
@@ -66,9 +60,13 @@ class User(AbstractBaseUser, PermissionsMixin):
 	created_at = models.DateTimeField(auto_now_add=True)
 	updated_at = models.DateTimeField(auto_now=True)
 
-	USERNAME_FIELD = 'id'
+	is_staff = models.BooleanField(default=False)
+	is_superuser = models.BooleanField(default=False)
+
+
+	USERNAME_FIELD = 'nickname'
 	last_login = None
-	REQUIRED_FIELDS = ['kakao_id']
+	REQUIRED_FIELDS = []
 
 	objects = UserManager()
 
