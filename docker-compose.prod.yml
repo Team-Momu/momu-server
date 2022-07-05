@@ -6,9 +6,9 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.prod
-    command: gunicorn momu-server.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn momu.wsgi:application --bind 0.0.0.0:8000
     environment:
-      DJANGO_SETTINGS_MODULE: momu-server.settings.prod
+      DJANGO_SETTINGS_MODULE: momu.settings.prod
     env_file:
       - .env
     volumes:
