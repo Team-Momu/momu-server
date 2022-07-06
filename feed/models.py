@@ -38,11 +38,11 @@ class Post(DateTime):
 	description = models.TextField(null=True)
 
 	def __str__(self):
-		return self.id
+		return str(self.id)
 
 
 class Place(models.Model):
-	place_id = models.TextField(unique=True)
+	place_id = models.TextField()
 	place_name = models.TextField()
 	category_name = models.TextField()
 	phone = models.TextField()
@@ -66,9 +66,12 @@ class Comment(DateTime):
 	select_flag = models.BooleanField(default=False)
 
 	def __str__(self):
-		return self.id
+		return str(self.id)
 
 
 class Scrap(DateTime):
 	user = models.ForeignKey(User, related_name='scraps', on_delete=models.CASCADE)
 	post = models.ForeignKey(Post, on_delete=models.CASCADE)
+
+	def __str__(self):
+		return str(self.id)
