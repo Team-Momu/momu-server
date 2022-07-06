@@ -42,7 +42,7 @@ class Post(DateTime):
 
 
 class Place(models.Model):
-	place_id = models.TextField()
+	place_id = models.TextField(unique=True)
 	place_name = models.TextField()
 	category_name = models.TextField()
 	phone = models.TextField()
