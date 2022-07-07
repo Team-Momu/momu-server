@@ -69,8 +69,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=4),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': True,
-    'USER_ID_FIELD': 'id',
-
+    'UPDATE_LAST_LOGIN': True,
+    'SIGNING_KEY': env('DJANGO_SECRET_KEY'),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 

@@ -1,5 +1,5 @@
 from django.urls import path
-from django.conf.urls import url
+from rest_framework_simplejwt.views import TokenVerifyView
 from .views import *
 
 
@@ -9,6 +9,7 @@ urlpatterns = [
 	# TO REMOVE
 	path('kakao/authorize', KakaoAuthorizeView.as_view()),
 	path('kakao', KakaoView.as_view()),
-	# path('profile', ProfileView.as_view({'get': 'list'})),
+	path('token/refresh', RefreshTokenView.as_view()),
+	path('token/verify', TokenVerifyView.as_view()),
 	path('profile/<int:pk>', ProfileUpdateView.as_view()),
 ]
