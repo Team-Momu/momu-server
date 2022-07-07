@@ -1,5 +1,5 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView
+from django.conf.urls import url
 from .views import *
 
 
@@ -9,4 +9,6 @@ urlpatterns = [
 	# TO REMOVE
 	path('kakao/authorize', KakaoAuthorizeView.as_view()),
 	path('kakao', KakaoView.as_view()),
+	# path('profile', ProfileView.as_view({'get': 'list'})),
+	path('profile/<int:pk>', ProfileUpdateView.as_view()),
 ]

@@ -12,15 +12,12 @@ class MbtiSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-	mbti_name = serializers.SerializerMethodField()
-	mbti_description = serializers.SerializerMethodField()
-
 	class Meta:
 		model = User
-		fields = ['id', 'kakao_id', 'nickname', 'profile_img', 'mbti', 'mbti_name', 'mbti_description', 'level', 'select_count', 'refresh_token']
+		fields = ['id', 'kakao_id', 'select_count', 'refresh_token']
 
-	def get_mbti_name(self, obj):
-		return obj.mbti.mbti
 
-	def get_mbti_description(self, obj):
-		return obj.mbti.description
+class ProfileSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['id', 'kakao_id', 'nickname', 'profile_img', 'level', 'select_count', 'refresh_token']

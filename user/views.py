@@ -1,16 +1,19 @@
+import boto3
 import requests
 import uuid
 from django.http import JsonResponse
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.core import signing
 from django.contrib.auth import get_user_model
-from rest_framework import views
+from rest_framework import views, viewsets
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import UpdateModelMixin
 from user.serializers import *
 
-from momu.settings import KAKAO_CONFIG
+from momu.settings import KAKAO_CONFIG, env
 
 User = get_user_model()
 
@@ -104,3 +107,19 @@ class KakaoView(views.APIView):
 		response.set_cookie('refresh_token', refresh_token, httponly=True)
 
 		return response
+
+
+# class ProfileView(viewsets.ModelViewSet):
+# 	serializer_class = UserSerializer
+# 	queryset = User.objects.all()
+# 	# TO ADD : permission
+
+
+class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
+	serializer_class = ProfileSerializer
+	queryset = User.objects.all()
+
+	# TO ADD : permission
+	# TO DO : 이미지 업로드 테스트
+	def put(self, request, *args, **kwargs):
+		return self.partial_update(request, *args, **kwargs)
