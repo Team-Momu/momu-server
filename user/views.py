@@ -11,6 +11,7 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, Toke
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import UpdateModelMixin
 from user.serializers import *
+from user.permissions import UserPermission
 
 from momu.settings import KAKAO_CONFIG, env
 
@@ -112,8 +113,9 @@ class KakaoView(views.APIView):
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
 	serializer_class = ProfileSerializer
 	queryset = User.objects.all()
+	# TO REMOVE : 개발 중
+	# permission_classes = [UserPermission]
 
-	# TO ADD : permission
 	def put(self, request, *args, **kwargs):
 		return self.partial_update(request, *args, **kwargs)
 
