@@ -5,6 +5,7 @@ from rest_framework import views
 from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
+from user.models import User
 from .serializers import PlaceSerializer, CommentSerializer, PostSerializer, ScrapSerializer
 from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
@@ -154,3 +155,21 @@ class ScrapView(views.APIView):
             serializer.save()
             return Response({'message': '스크랩 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
         return Response({'message': '스크랩 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+
+
+class CommentSelectView(views.APIView):
+    permission_classes = [UserPermission]
+
+    def post(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        comment = get_object_or_404(Comment, pk=int(request.data['comment']))
+
+        if int(str(post.user)) != request.user.id:
+            return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+
+        comment.select_flag = True
+        author = get_object_or_404(User, pk=int(str(comment.user)))
+        author.select_count += 1
+        comment.save()
+        author.save()
+        return Response({'message': '답변 채택 성공'}, status=HTTP_201_CREATED)
