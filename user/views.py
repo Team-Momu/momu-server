@@ -1,16 +1,19 @@
 import requests
 import uuid
-from django.http import JsonResponse
-from django.shortcuts import redirect
+import jwt
+from django.shortcuts import redirect, get_object_or_404
 from django.core import signing
 from django.contrib.auth import get_user_model
 from rest_framework import views
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import UpdateModelMixin
 from user.serializers import *
+from user.permissions import UserPermission
 
-from momu.settings import KAKAO_CONFIG
+from momu.settings import KAKAO_CONFIG, env
 
 User = get_user_model()
 
@@ -79,23 +82,24 @@ class KakaoView(views.APIView):
 		serializer.is_valid(raise_exception=True)
 		user = serializer.save()
 
-		momu_token = RefreshToken.for_user(user)
+		momu_token = TokenObtainPairSerializer.get_token(user)
 		refresh_token = str(momu_token)
 		access_token = str(momu_token.access_token)
 
-		salt = uuid.uuid4()
-		signer = signing.Signer(salt)
-		hashed_refresh = signer.sign(refresh_token)
+		# TO FIX : 암호화 로직
+		# salt = uuid.uuid4()
+		# signer = signing.Signer(salt)
+		# hashed_refresh = signer.sign(refresh_token)
 
 		refresh_data = {
 			'kakao_id': kakao_id,
-			'refresh_token': hashed_refresh,
+			'refresh_token': refresh_token,
 		}
 		refresh_serializer = UserSerializer(user, data=refresh_data)
 		refresh_serializer.is_valid(raise_exception=True)
 		refresh_serializer.save()
 
-		response = JsonResponse({
+		response = Response({
 			'message': message,
 			'user': user.id,
 		}, status=status_code)
@@ -104,3 +108,57 @@ class KakaoView(views.APIView):
 		response.set_cookie('refresh_token', refresh_token, httponly=True)
 
 		return response
+
+
+class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
+	serializer_class = ProfileSerializer
+	queryset = User.objects.all()
+	# TO REMOVE : 개발 중
+	# permission_classes = [UserPermission]
+
+	def put(self, request, *args, **kwargs):
+		return self.partial_update(request, *args, **kwargs)
+
+
+class RefreshTokenView(views.APIView):
+	def post(self, request):
+		try:
+			refresh_token = request.COOKIES.get('refresh_token')
+			if not refresh_token:
+				return Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
+
+			payload = jwt.decode(refresh_token, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
+			user = get_object_or_404(User, pk=payload['user_id'])
+
+			if user.refresh_token != refresh_token:
+				return Response({'message': '토큰 재발급 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+
+			refresh_data = {'refresh': request.COOKIES.get('refresh_token')}
+			serializer = TokenRefreshSerializer(data=refresh_data)
+			serializer.is_valid(raise_exception=True)
+
+			user.refresh_token = serializer.data['refresh']
+			user.save()
+
+			response = Response({
+				'message': '토큰 재발급 성공',
+				'user': user.id,
+			}, status=HTTP_201_CREATED)
+
+			response.set_cookie('access_token', serializer.data['access'], httponly=True)
+			response.set_cookie('refresh token', serializer.data['refresh'], httponly=True)
+			return response
+
+		# 리프레시 토큰 만료
+		except(jwt.exceptions.ExpiredSignatureError):
+			if user:
+				user.refresh_token = None
+				user.save()
+			return Response({'message': '토큰이 만료되어 로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
+
+		# invalid 한 토큰
+		except(jwt.exceptions.InvalidTokenError):
+			response = Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
+			response.delete_cookie('refresh_token')
+
+			return response

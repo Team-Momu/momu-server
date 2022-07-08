@@ -52,9 +52,9 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 	kakao_id = models.TextField()
 	nickname = models.CharField(max_length=30, unique=True, null=True)
-	profile_img = models.URLField(null=True)
+	profile_img = models.FileField(null=True)
 	mbti = models.ForeignKey(Mbti, on_delete=models.SET_NULL, null=True)
-	level = models.PositiveIntegerField(choices=level_choices, null=True)
+	level = models.PositiveIntegerField(choices=level_choices, default=5)
 	select_count = models.PositiveIntegerField(default=0)
 	refresh_token = models.TextField(null=True)
 	created_at = models.DateTimeField(auto_now_add=True)

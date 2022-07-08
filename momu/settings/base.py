@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'feed',
     'rest_framework',
     'rest_framework_simplejwt',
+    'storages',
 ]
 
 # cors headers
@@ -68,8 +69,8 @@ SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=4),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=14),
     'ROTATE_REFRESH_TOKENS': True,
-    'USER_ID_FIELD': 'id',
-
+    'UPDATE_LAST_LOGIN': True,
+    'SIGNING_KEY': env('DJANGO_SECRET_KEY'),
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -155,3 +156,12 @@ KAKAO_CONFIG = {
     'KAKAO_REDIRECT_URI': 'http://localhost:8000/user/kakao',
     'KAKAO_CLIENT_SECRET_KEY': env('KAKAO_CLIENT_SECRET_KEY'),
 }
+
+# AWS
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_S3_SECURE_URLS = False       # use http instead of https
+AWS_QUERYSTRING_AUTH = False
+
+AWS_S3_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_S3_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = 'momu-s3'
