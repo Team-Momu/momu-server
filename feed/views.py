@@ -94,7 +94,7 @@ class CommentView(views.APIView):
             'place': place,
             'place_img': request.data['place_img'],
             'visit_flag': request.data['visit_flag'],
-            'description': request.data['description'] if request.data.get('id') else None,
+            'description': request.data['description'],
             'select_flag': request.data['select_flag'],
         }
         comment_serializer = CommentSerializer(data=comment_data)

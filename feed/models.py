@@ -49,9 +49,9 @@ class Comment(DateTime):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    place_img = models.URLField(null=True)
+    place_img = models.URLField(blank=True)
     visit_flag = models.BooleanField(default=False)
-    description = models.TextField(null=True)
+    description = models.TextField(blank=True)
     select_flag = models.BooleanField(default=False)
 
     def __str__(self):
