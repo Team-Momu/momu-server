@@ -20,145 +20,145 @@ User = get_user_model()
 
 # TO REMOVE : 프론트 처리 파트 -> 인가 코드
 class KakaoAuthorizeView(views.APIView):
-	def get(self, request):
-		rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
-		redirect_uri = KAKAO_CONFIG['KAKAO_REDIRECT_URI']
-		kakao_auth_api = 'https://kauth.kakao.com/oauth/authorize?response_type=code'
-		return redirect(
-			f'{kakao_auth_api}&client_id={rest_api_key}&redirect_uri={redirect_uri}'
-		)
+    def get(self, request):
+        rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
+        redirect_uri = KAKAO_CONFIG['KAKAO_REDIRECT_URI']
+        kakao_auth_api = 'https://kauth.kakao.com/oauth/authorize?response_type=code'
+        return redirect(
+            f'{kakao_auth_api}&client_id={rest_api_key}&redirect_uri={redirect_uri}'
+        )
 
 
 class KakaoView(views.APIView):
-	def get(self, request):
-		code = request.GET.get('code')
-		if not code:
-			return Response(status=HTTP_400_BAD_REQUEST)
+    def get(self, request):
+        code = request.GET.get('code')
+        if not code:
+            return Response(status=HTTP_400_BAD_REQUEST)
 
-		# 토큰 받기
-		kakao_token_api = 'https://kauth.kakao.com/oauth/token'
-		token_data = {
-			'grant_type': 'authorization_code',
-			'client_id': KAKAO_CONFIG['KAKAO_REST_API_KEY'],
-			'redirect_uri': KAKAO_CONFIG['KAKAO_REDIRECT_URI'],
-			'code': code,
-			'client_secret': KAKAO_CONFIG['KAKAO_CLIENT_SECRET_KEY'],
-		}
-		token_headers = {
-			'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
-		}
+        # 토큰 받기
+        kakao_token_api = 'https://kauth.kakao.com/oauth/token'
+        token_data = {
+            'grant_type': 'authorization_code',
+            'client_id': KAKAO_CONFIG['KAKAO_REST_API_KEY'],
+            'redirect_uri': KAKAO_CONFIG['KAKAO_REDIRECT_URI'],
+            'code': code,
+            'client_secret': KAKAO_CONFIG['KAKAO_CLIENT_SECRET_KEY'],
+        }
+        token_headers = {
+            'Content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+        }
 
-		token_response = requests.post(kakao_token_api, data=token_data, headers=token_headers).json()
+        token_response = requests.post(kakao_token_api, data=token_data, headers=token_headers).json()
 
-		# 토큰으로 사용자 정보 가져오기
-		kakao_access_token = token_response.get('access_token')
-		kakao_user_info_api = 'https://kapi.kakao.com/v2/user/me'
-		user_info_headers = {
-			'Authorization': f'Bearer {kakao_access_token}',
-			'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
-		}
+        # 토큰으로 사용자 정보 가져오기
+        kakao_access_token = token_response.get('access_token')
+        kakao_user_info_api = 'https://kapi.kakao.com/v2/user/me'
+        user_info_headers = {
+            'Authorization': f'Bearer {kakao_access_token}',
+            'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
+        }
 
-		user_info_response = requests.get(kakao_user_info_api, headers=user_info_headers).json()
+        user_info_response = requests.get(kakao_user_info_api, headers=user_info_headers).json()
 
-		kakao_id = user_info_response.get('id')
-		# user_info = user_info_response.get('kakao_account')
-		if not kakao_id:
-			return Response(user_info_response, status=HTTP_400_BAD_REQUEST)
+        kakao_id = user_info_response.get('id')
+        # user_info = user_info_response.get('kakao_account')
+        if not kakao_id:
+            return Response(user_info_response, status=HTTP_400_BAD_REQUEST)
 
-		user_data = {'kakao_id': kakao_id}
-		try:
-			# 로그인
-			kakao_user = User.objects.get(kakao_id=kakao_id)
-			# TO FIX : 개선 필요
-			serializer = UserSerializer(kakao_user, data=user_data)
-			message = '로그인 성공'
-			status_code = HTTP_200_OK
-		except User.DoesNotExist:
-			# 회원가입
-			serializer = UserSerializer(data=user_data)
-			message = '회원가입 성공'
-			status_code = HTTP_201_CREATED
+        user_data = {'kakao_id': kakao_id}
+        try:
+            # 로그인
+            kakao_user = User.objects.get(kakao_id=kakao_id)
+            # TO FIX : 개선 필요
+            serializer = UserSerializer(kakao_user, data=user_data)
+            message = '로그인 성공'
+            status_code = HTTP_200_OK
+        except User.DoesNotExist:
+            # 회원가입
+            serializer = UserSerializer(data=user_data)
+            message = '회원가입 성공'
+            status_code = HTTP_201_CREATED
 
-		serializer.is_valid(raise_exception=True)
-		user = serializer.save()
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
 
-		momu_token = TokenObtainPairSerializer.get_token(user)
-		refresh_token = str(momu_token)
-		access_token = str(momu_token.access_token)
+        momu_token = TokenObtainPairSerializer.get_token(user)
+        refresh_token = str(momu_token)
+        access_token = str(momu_token.access_token)
 
-		# TO FIX : 암호화 로직
-		# salt = uuid.uuid4()
-		# signer = signing.Signer(salt)
-		# hashed_refresh = signer.sign(refresh_token)
+        # TO FIX : 암호화 로직
+        # salt = uuid.uuid4()
+        # signer = signing.Signer(salt)
+        # hashed_refresh = signer.sign(refresh_token)
 
-		refresh_data = {
-			'kakao_id': kakao_id,
-			'refresh_token': refresh_token,
-		}
-		refresh_serializer = UserSerializer(user, data=refresh_data)
-		refresh_serializer.is_valid(raise_exception=True)
-		refresh_serializer.save()
+        refresh_data = {
+            'kakao_id': kakao_id,
+            'refresh_token': refresh_token,
+        }
+        refresh_serializer = UserSerializer(user, data=refresh_data)
+        refresh_serializer.is_valid(raise_exception=True)
+        refresh_serializer.save()
 
-		response = Response({
-			'message': message,
-			'user': user.id,
-		}, status=status_code)
+        response = Response({
+            'message': message,
+            'user': user.id,
+        }, status=status_code)
 
-		response.set_cookie('access_token', access_token, httponly=True)
-		response.set_cookie('refresh_token', refresh_token, httponly=True)
+        response.set_cookie('access_token', access_token, httponly=True)
+        response.set_cookie('refresh_token', refresh_token, httponly=True)
 
-		return response
+        return response
 
 
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
-	serializer_class = ProfileSerializer
-	queryset = User.objects.all()
-	# TO REMOVE : 개발 중
-	# permission_classes = [UserPermission]
+    serializer_class = ProfileSerializer
+    queryset = User.objects.all()
+    # TO REMOVE : 개발 중
+    # permission_classes = [UserPermission]
 
-	def put(self, request, *args, **kwargs):
-		return self.partial_update(request, *args, **kwargs)
+    def put(self, request, *args, **kwargs):
+        return self.partial_update(request, *args, **kwargs)
 
 
 class RefreshTokenView(views.APIView):
-	def post(self, request):
-		try:
-			refresh_token = request.COOKIES.get('refresh_token')
-			if not refresh_token:
-				return Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
+    def post(self, request):
+        try:
+            refresh_token = request.COOKIES.get('refresh_token')
+            if not refresh_token:
+                return Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
 
-			payload = jwt.decode(refresh_token, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
-			user = get_object_or_404(User, pk=payload['user_id'])
+            payload = jwt.decode(refresh_token, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
+            user = get_object_or_404(User, pk=payload['user_id'])
 
-			if user.refresh_token != refresh_token:
-				return Response({'message': '토큰 재발급 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+            if user.refresh_token != refresh_token:
+                return Response({'message': '토큰 재발급 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
 
-			refresh_data = {'refresh': request.COOKIES.get('refresh_token')}
-			serializer = TokenRefreshSerializer(data=refresh_data)
-			serializer.is_valid(raise_exception=True)
+            refresh_data = {'refresh': request.COOKIES.get('refresh_token')}
+            serializer = TokenRefreshSerializer(data=refresh_data)
+            serializer.is_valid(raise_exception=True)
 
-			user.refresh_token = serializer.data['refresh']
-			user.save()
+            user.refresh_token = serializer.data['refresh']
+            user.save()
 
-			response = Response({
-				'message': '토큰 재발급 성공',
-				'user': user.id,
-			}, status=HTTP_201_CREATED)
+            response = Response({
+                'message': '토큰 재발급 성공',
+                'user': user.id,
+            }, status=HTTP_201_CREATED)
 
-			response.set_cookie('access_token', serializer.data['access'], httponly=True)
-			response.set_cookie('refresh token', serializer.data['refresh'], httponly=True)
-			return response
+            response.set_cookie('access_token', serializer.data['access'], httponly=True)
+            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True)
+            return response
 
-		# 리프레시 토큰 만료
-		except(jwt.exceptions.ExpiredSignatureError):
-			if user:
-				user.refresh_token = None
-				user.save()
-			return Response({'message': '토큰이 만료되어 로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
+        # 리프레시 토큰 만료
+        except(jwt.exceptions.ExpiredSignatureError):
+            if user:
+                user.refresh_token = None
+                user.save()
+            return Response({'message': '토큰이 만료되어 로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
 
-		# invalid 한 토큰
-		except(jwt.exceptions.InvalidTokenError):
-			response = Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
-			response.delete_cookie('refresh_token')
+        # invalid 한 토큰
+        except(jwt.exceptions.InvalidTokenError):
+            response = Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
+            response.delete_cookie('refresh_token')
 
-			return response
+            return response

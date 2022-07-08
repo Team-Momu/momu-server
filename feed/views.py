@@ -5,7 +5,7 @@ from rest_framework import views
 from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
-from .serializers import PlaceSerializer, PostSerializer, ScrapSerializer
+from .serializers import PlaceSerializer
 from momu.settings import KAKAO_CONFIG
 
 
