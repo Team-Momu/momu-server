@@ -6,10 +6,10 @@ from .views import *
 app_name = 'user'
 
 urlpatterns = [
-	# TO REMOVE
-	path('kakao/authorize', KakaoAuthorizeView.as_view()),
-	path('kakao', KakaoView.as_view()),
-	path('token/refresh', RefreshTokenView.as_view()),
-	path('token/verify', TokenVerifyView.as_view()),
-	path('profile/<int:pk>', ProfileUpdateView.as_view()),
+    # TO REMOVE
+    path('kakao/authorize', KakaoAuthorizeView.as_view()),
+    path('kakao', KakaoView.as_view()),
+    path('token/refresh', RefreshTokenView.as_view()),
+    path('token/verify', TokenVerifyView.as_view()),
+    path('profile/<int:pk>', ProfileUpdateView.as_view()),
 ]

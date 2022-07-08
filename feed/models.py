@@ -13,29 +13,11 @@ class DateTime(models.Model):
 
 
 class Post(DateTime):
-    time_choices = [
-        ('brek', '아침'),
-        ('lun', '점심'),
-        ('din', '저녁'),
-        ('night', '밤'),
-    ]
-    drink_choices = [
-        (0, '안 마셔요'),
-        (1, '한 잔만!'),
-        (2, '마실래요'),
-    ]
-    member_choices = [
-        (1, '혼자'),
-        (2, '둘이서'),
-        (3, '3~4명'),
-        (4, '5인 이상'),
-    ]
-
     user = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
     location = models.TextField()
-    time = models.CharField(max_length=10, choices=time_choices)
-    drink = models.PositiveIntegerField(choices=drink_choices)
-    member_count = models.PositiveIntegerField(choices=member_choices)
+    time = models.CharField(max_length=10)
+    drink = models.PositiveIntegerField()
+    member_count = models.PositiveIntegerField()
     comment_count = models.PositiveIntegerField(default=0)
     description = models.TextField(null=True)
 

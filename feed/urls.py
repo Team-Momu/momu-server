@@ -5,5 +5,5 @@ from .views import *
 app_name = 'feed'
 
 urlpatterns = [
-	path('search/', PlaceView.as_view()),
+    path('search/', PlaceView.as_view()),
 ]
