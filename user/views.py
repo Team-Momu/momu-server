@@ -113,8 +113,7 @@ class KakaoView(views.APIView):
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     serializer_class = ProfileSerializer
     queryset = User.objects.all()
-    # TO REMOVE : 개발 중
-    # permission_classes = [UserPermission]
+    permission_classes = [UserPermission]
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -162,3 +161,26 @@ class RefreshTokenView(views.APIView):
             response.delete_cookie('refresh_token')
 
             return response
+
+
+class MbtiView(views.APIView):
+    permission_classes = [UserPermission]
+
+    def post(self, request):
+        mbti = request.data['mbti']
+
+        if Mbti.objects.filter(mbti=mbti).exists():
+            mbti_object = Mbti.objects.get(mbti=mbti)
+            serializer = MbtiSerializer(mbti_object)
+
+            user = get_object_or_404(User, pk=request.user.id)
+            user.mbti = serializer.data['id']
+            user.save()
+
+            return Response({
+                'message': '먹BTI 등록 성공',
+                'mbti': serializer.data['mbti'],
+                'description': serializer.data['description'],
+            }, status=HTTP_201_CREATED)
+        else:
+            return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)

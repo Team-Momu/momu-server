@@ -17,7 +17,7 @@ class PlaceView(views.APIView):
 
     def get(self, request):
         size = 15
-        page = 1
+        page = 1 if 'page' not in request.GET else request.GET.get('page')
         if 'keyword' in request.GET:
             keyword = request.GET.get('keyword')
             rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
@@ -30,7 +30,7 @@ class PlaceView(views.APIView):
             data = requests.get(url, params=params, headers=headers).json()['documents']
             total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
 
-            return Response({'message': '식당 검색 성공', 'data': data, 'total': total}, status=HTTP_200_OK)
+            return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
         return Response(status=HTTP_400_BAD_REQUEST)
 
