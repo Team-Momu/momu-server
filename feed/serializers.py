@@ -17,6 +17,8 @@ class ScrapSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    place = PlaceSerializer(read_only=True)
+
     class Meta:
         model = Comment
         fields = ['id', 'user', 'post', 'place', 'place_img', 'visit_flag', 'description', 'select_flag']
