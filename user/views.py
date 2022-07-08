@@ -137,12 +137,16 @@ class RefreshTokenView(views.APIView):
 			serializer = TokenRefreshSerializer(data=refresh_data)
 			serializer.is_valid(raise_exception=True)
 
+			user.refresh_token = serializer.data['refresh']
+			user.save()
+
 			response = Response({
 				'message': '토큰 재발급 성공',
 				'user': user.id,
 			}, status=HTTP_201_CREATED)
 
-			response.set_cookie('access_token', serializer.data['access_token'], httponly=True)
+			response.set_cookie('access_token', serializer.data['access'], httponly=True)
+			response.set_cookie('refresh token', serializer.data['refresh'], httponly=True)
 			return response
 
 		# 리프레시 토큰 만료
