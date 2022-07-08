@@ -3,11 +3,7 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 
 class Mbti(models.Model):
-    mbti_choices = [
-        ('entw', 'ENTW'),
-    ]
-
-    mbti = models.CharField(max_length=10, choices=mbti_choices)
+    mbti = models.CharField(max_length=10)
     description = models.TextField()
 
     def __str__(self):
@@ -43,18 +39,11 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    level_choices = [
-        (2, '황금 접시'),
-        (3, '은접시'),
-        (4, '유리접시'),
-        (5, '종이접시'),
-    ]
-
     kakao_id = models.TextField()
     nickname = models.CharField(max_length=30, unique=True, null=True)
     profile_img = models.FileField(null=True)
     mbti = models.ForeignKey(Mbti, on_delete=models.SET_NULL, null=True)
-    level = models.PositiveIntegerField(choices=level_choices, default=5)
+    level = models.PositiveIntegerField(default=5)
     select_count = models.PositiveIntegerField(default=0)
     refresh_token = models.TextField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)
