@@ -100,6 +100,11 @@ class CommentView(views.APIView):
         comment_serializer = CommentSerializer(data=comment_data)
         if comment_serializer.is_valid():
             comment_serializer.save()
+
+            post = Post.objects.get(id=pk)
+            post.comment_count += 1
+            post.save()
+
             # TO DO : 관계된 모델들 가져오기
             return Response({
                 'message': '답글 등록 성공',
