@@ -5,12 +5,15 @@ from rest_framework import views
 from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
-from .serializers import PlaceSerializer
+from .serializers import PlaceSerializer, CommentSerializer
+from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
 
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
+    # TO REMOVE : 개발 중
+    # permission_classes = UserPermission
 
     def get(self, request):
         size = 15
@@ -52,3 +55,55 @@ class PlaceView(views.APIView):
 
             else:
                 return Response({'message': '잘못된 입력값'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class CommentView(views.APIView):
+    # TO REMOVE : 개발 중
+    # permission_classes = [UserPermission]
+
+    def post(self, request, pk):
+        # 식당 등록
+        place_data = request.data['place']
+        place_id = place_data.id
+        if not Place.objects.filter(place_id=place_id).exists():
+            place_request_data = {
+                'place_id': place_id,
+                'place_name': place_data.place_name,
+                'category_name': place_data.category_name.split(' > ')[1],
+                'phone': place_data.phone,
+                'road_address_name': place_data.road_address_name,
+                'region': place_data.address_name.split()[2],
+                'place_x': place_data.x,
+                'place_y': place_data.y,
+                'place_url': place_data.place_url
+            }
+            place_serializer = PlaceSerializer(data=place_request_data)
+            if place_serializer.is_valid():
+                place_serializer.save()
+                place = place_serializer.data['id']
+            else:
+                return Response({'message': '잘못된 형식의 요청입니다: 식당 정보'}, status=HTTP_400_BAD_REQUEST)
+        else:
+            place_object = Place.objects.get(place_id=place_id)
+            place = PlaceSerializer(place_object).data['id']
+
+        # 답글 등록
+        comment_data = {
+            'user': request.user.id,
+            'post': pk,
+            'place': place,
+            'place_img': request.data['place_img'],
+            'visit_flag': request.data['visit_flag'],
+            'description': request.data['description'] if request.data.get('id') else None,
+            'select_flag': request.data['select_flag'],
+        }
+        comment_serializer = CommentSerializer(data=comment_data)
+        if comment_serializer.is_valid():
+            comment_serializer.save()
+            # TO DO : 관계된 모델들 가져오기
+            return Response({
+                'message': '답글 등록 성공',
+                'data': comment_serializer.data,
+            }, status=HTTP_200_OK)
+        else:
+            return Response({'message': '잘못된 형식의 요청입니다: 답글 정보'}, status=HTTP_400_BAD_REQUEST)
