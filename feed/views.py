@@ -185,14 +185,16 @@ class CommentSelectView(views.APIView):
         comment.save()
         author.save()
         post.save()
-        return Response({'message': '답변 채택 성공'}, status=HTTP_201_CREATED)
+        return Response({'message': '답글 채택 성공'}, status=HTTP_201_CREATED)
 
     def delete(self, request, post_pk, comment_pk):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
 
         if int(str(post.user)) != request.user.id:
-            return Response({'message': '해당 게시글에서 답변 채택을 취소할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+            return Response({'message': '해당 게시글에서 답글 채택을 취소할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+        if not comment.select_flag:
+            return Response({'message': '해당 답글이 채택되어 있지 않습니다'}, status=HTTP_400_BAD_REQUEST)
 
         post.selected_flag = False
         comment.select_flag = False
@@ -201,4 +203,4 @@ class CommentSelectView(views.APIView):
         comment.save()
         author.save()
         post.save()
-        return Response({'message': '답변 채택 취소 성공'}, status=HTTP_200_OK)
+        return Response({'message': '답글 채택 취소 성공'}, status=HTTP_200_OK)
