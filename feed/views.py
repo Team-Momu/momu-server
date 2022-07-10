@@ -12,6 +12,7 @@ from momu.settings import KAKAO_CONFIG
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
+
     # TO REMOVE : 개발 중
     # permission_classes = UserPermission
 
@@ -149,8 +150,16 @@ class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': '스크랩 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '스크랩 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        user = self.request.data['user']
+        post = self.request.data['post']
+
+        if Scrap.objects.filter(user=user, post=post).exists():
+            Scrap.objects.get(user=user, post=post).delete()
+            return Response({'message': '스크랩 취소'}, status=HTTP_200_OK)
+
+        else:
+            serializer = self.serializer_class(data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'message': '스크랩 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
+            return Response({'message': '스크랩 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
