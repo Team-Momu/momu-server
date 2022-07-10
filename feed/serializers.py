@@ -17,6 +17,7 @@ class ScrapSerializer(serializers.ModelSerializer):
 
 
 class CommentSerializer(serializers.ModelSerializer):
+    user = ProfileSerializer(read_only=True)
     place = PlaceSerializer(read_only=True)
 
     class Meta:
@@ -25,6 +26,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    user = ProfileSerializer(read_only=True)
     scrap_flag = serializers.BooleanField(default=False)
     comments = CommentSerializer(many=True, read_only=True)
 

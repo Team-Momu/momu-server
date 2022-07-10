@@ -18,6 +18,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    mbti = MbtiSerializer(read_only=True)
+
     class Meta:
         model = User
-        fields = ['id', 'kakao_id', 'nickname', 'profile_img', 'level', 'select_count', 'refresh_token']
+        fields = ['id', 'nickname', 'profile_img', 'mbti', 'level', 'select_count']

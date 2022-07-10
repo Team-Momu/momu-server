@@ -113,7 +113,8 @@ class KakaoView(views.APIView):
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     serializer_class = ProfileSerializer
     queryset = User.objects.all()
-    permission_classes = [UserPermission]
+    # TO REMOVE : 개발 중
+    # permission_classes = [UserPermission]
 
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
@@ -164,7 +165,8 @@ class RefreshTokenView(views.APIView):
 
 
 class MbtiView(views.APIView):
-    permission_classes = [UserPermission]
+    # TO REMOVE : 개발 중
+    # permission_classes = [UserPermission]
 
     def post(self, request):
         mbti = request.data['mbti']
