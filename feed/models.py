@@ -19,7 +19,7 @@ class Post(DateTime):
     drink = models.PositiveIntegerField()
     member_count = models.PositiveIntegerField()
     comment_count = models.PositiveIntegerField(default=0)
-    description = models.TextField(null=True)
+    description = models.TextField(blank=True)
 
     def __str__(self):
         return str(self.id)
