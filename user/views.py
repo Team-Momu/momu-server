@@ -63,7 +63,7 @@ class KakaoView(views.APIView):
         kakao_id = user_info_response.get('id')
         # user_info = user_info_response.get('kakao_account')
         if not kakao_id:
-            return Response(user_info_response, status=HTTP_400_BAD_REQUEST)
+            return Response({'message': '카카오 유저 정보를 받아올 수 없습니다'}, status=HTTP_400_BAD_REQUEST)
 
         user_data = {'kakao_id': kakao_id}
         try:
