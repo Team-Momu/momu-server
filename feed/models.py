@@ -20,6 +20,7 @@ class Post(DateTime):
     member_count = models.PositiveIntegerField()
     comment_count = models.PositiveIntegerField(default=0)
     description = models.TextField(null=True)
+    selected_flag = models.BooleanField(default=False)
 
     def __str__(self):
         return str(self.id)

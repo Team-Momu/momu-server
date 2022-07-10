@@ -160,16 +160,45 @@ class ScrapView(views.APIView):
 class CommentSelectView(views.APIView):
     permission_classes = [UserPermission]
 
-    def post(self, request, pk):
-        post = get_object_or_404(Post, pk=pk)
-        comment = get_object_or_404(Comment, pk=int(request.data['comment']))
+    def get_object_post(self, pk):
+        return get_object_or_404(Post, pk=pk)
+
+    def get_object_comment(self, pk):
+        return get_object_or_404(Comment, pk=pk)
+
+    def get_object_user(self, pk):
+        return get_object_or_404(User, pk=pk)
+
+    def post(self, request, post_pk, comment_pk):
+        post = self.get_object_post(pk=post_pk)
+        comment = self.get_object_comment(pk=comment_pk)
 
         if int(str(post.user)) != request.user.id:
             return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+        if post.selected_flag:
+            return Response({'message': '이미 답번이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
 
+        post.selected_flag = True
         comment.select_flag = True
-        author = get_object_or_404(User, pk=int(str(comment.user)))
+        author = self.get_object_user(pk=int(str(comment.user)))
         author.select_count += 1
         comment.save()
         author.save()
+        post.save()
         return Response({'message': '답변 채택 성공'}, status=HTTP_201_CREATED)
+
+    def delete(self, request, post_pk, comment_pk):
+        post = self.get_object_post(pk=post_pk)
+        comment = self.get_object_comment(pk=comment_pk)
+
+        if int(str(post.user)) != request.user.id:
+            return Response({'message': '해당 게시글에서 답변 채택을 취소할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+
+        post.selected_flag = False
+        comment.select_flag = False
+        author = self.get_object_user(pk=int(str(comment.user)))
+        author.select_count -= 1
+        comment.save()
+        author.save()
+        post.save()
+        return Response({'message': '답변 채택 취소 성공'}, status=HTTP_200_OK)
