@@ -6,7 +6,8 @@ from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
 from user.models import User
-from .serializers import PlaceSerializer, CommentSerializer, PostSerializer, ScrapSerializer
+from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer,\
+    PostListSerializer, PostCreateSerializer, ScrapSerializer
 from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
 
@@ -20,7 +21,8 @@ class PlaceView(views.APIView):
     def get(self, request):
         size = 15
         page = 1 if 'page' not in request.GET else request.GET.get('page')
-        if 'keyword' in request.GET:
+
+        if 'keyword' in request.GET and request.GET.get('keyword'):
             keyword = request.GET.get('keyword')
             rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
 
@@ -34,7 +36,8 @@ class PlaceView(views.APIView):
 
             return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
-        return Response(status=HTTP_400_BAD_REQUEST)
+        else:
+            return Response({'message': '잘못된 형식의 요청입니다: 키워드 누락'}, status=HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         request.data._mutable = True
@@ -56,7 +59,7 @@ class PlaceView(views.APIView):
                 return Response({'message': '식당 저장 성공', 'place_id': serializer.data['id']}, status=HTTP_201_CREATED)
 
             else:
-                return Response({'message': '잘못된 입력값'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
+                return Response({'message': '잘못된 형식의 요청입니다'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class CommentView(views.APIView):
@@ -117,8 +120,6 @@ class CommentView(views.APIView):
 
 
 class PostListView(views.APIView):
-    serializer_class = PostSerializer
-
     def get(self, request):
         posts = Post.objects.all()
         user = self.request.data['user']
@@ -127,20 +128,21 @@ class PostListView(views.APIView):
             if Scrap.objects.filter(post=post.id, user=user).exists():
                 post.scrap_flag = True
 
-        serializer = self.serializer_class(posts, many=True)
+        serializer = PostListSerializer(posts, many=True)
 
-        return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
+        return Response({'message': '게시글 목록 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = PostCreateSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '잘못된 형식의 요청입니다: 게시글 정보', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 
 class PostDetailView(views.APIView):
-    serializer_class = PostSerializer
+    serializer_class = PostDetailSerializer
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -167,9 +169,9 @@ class ScrapView(views.APIView):
         user = self.request.data['user']
         post = self.request.data['post']
 
-        Scrap.objects.get(user=user, post=post).delete()
+        Scrap.objects.filter(user=user, post=post).delete()
 
-        return Response({'message': '스크랩 취소 '}, status=HTTP_200_OK)
+        return Response({'message': '스크랩 취소 성공 '}, status=HTTP_200_OK)
 
 
 class CommentSelectView(views.APIView):
@@ -191,7 +193,7 @@ class CommentSelectView(views.APIView):
         if int(str(post.user)) != request.user.id:
             return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
         if post.selected_flag:
-            return Response({'message': '이미 답번이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
+            return Response({'message': '이미 답변이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
 
         post.selected_flag = True
         comment.select_flag = True
