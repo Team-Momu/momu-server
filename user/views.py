@@ -118,6 +118,12 @@ class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     # TO REMOVE : 개발 중
     # permission_classes = [UserPermission]
 
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        serializer = self.serializer_class(user)
+
+        return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
+
     def put(self, request, *args, **kwargs):
         return self.partial_update(request, *args, **kwargs)
 
@@ -190,16 +196,6 @@ class MbtiView(views.APIView):
             return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
 
 
-# class ProfileView(views.APIView):
-#     serializer_class = ProfileSerializer
-#
-#     def get(self, request, pk):
-#         user = get_object_or_404(User, pk=pk)
-#         serializer = self.serializer_class(user)
-#
-#         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
-
-
 class ProfilePostView(views.APIView):
     def get(self, request, pk):
         user = get_object_or_404(User, pk=pk)
@@ -214,7 +210,7 @@ class ProfilePostView(views.APIView):
         post_serializer = ProfilePostSerializer(posts, many=True)
 
         return Response(
-            {'message': '프로필 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
+            {'message': '직성한 글 목록 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
             status=HTTP_200_OK)
 
 
@@ -232,5 +228,5 @@ class ProfileScrapView(views.APIView):
         post_serializer = ProfilePostSerializer(posts, many=True)
 
         return Response(
-            {'message': '프로필 스크랩 목록 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
+            {'message': '스크랩 한 글 목록 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
             status=HTTP_200_OK)
