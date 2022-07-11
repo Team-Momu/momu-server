@@ -6,7 +6,7 @@ from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
 from user.models import User
-from .serializers import PlaceSerializer, CommentSerializer, PostSerializer, PostListSerializer, ScrapSerializer
+from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer, PostListSerializer, ScrapSerializer
 from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
 
@@ -143,7 +143,7 @@ class PostListView(views.APIView):
 
 
 class PostDetailView(views.APIView):
-    serializer_class = PostSerializer
+    serializer_class = PostDetailSerializer
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
