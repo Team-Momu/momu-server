@@ -12,5 +12,6 @@ urlpatterns = [
     path('token/refresh/', RefreshTokenView.as_view()),
     path('token/verify/', TokenVerifyView.as_view()),
     path('profile/<int:pk>/', ProfileUpdateView.as_view()),
+    path('profile/<int:pk>/post/', ProfilePostView.as_view()),
     path('types', MbtiView.as_view()),
 ]

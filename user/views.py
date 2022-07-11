@@ -1,17 +1,18 @@
 import requests
-import uuid
 import jwt
 from django.shortcuts import redirect, get_object_or_404
 from django.core import signing
 from django.contrib.auth import get_user_model
 from rest_framework import views
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, \
+    HTTP_403_FORBIDDEN
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import UpdateModelMixin
 from user.serializers import *
 from user.permissions import UserPermission
+from feed.models import Post, Scrap
 
 from momu.settings import KAKAO_CONFIG, env
 
@@ -113,6 +114,7 @@ class KakaoView(views.APIView):
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     serializer_class = ProfileSerializer
     queryset = User.objects.all()
+
     # TO REMOVE : 개발 중
     # permission_classes = [UserPermission]
 
@@ -186,3 +188,31 @@ class MbtiView(views.APIView):
             }, status=HTTP_201_CREATED)
         else:
             return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
+
+
+# class ProfileView(views.APIView):
+#     serializer_class = ProfileSerializer
+#
+#     def get(self, request, pk):
+#         user = get_object_or_404(User, pk=pk)
+#         serializer = self.serializer_class(user)
+#
+#         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
+
+
+class ProfilePostView(views.APIView):
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        user_serializer = ProfileSerializer(user)
+
+        posts = Post.objects.filter(user_id=user)
+
+        for post in posts:
+            if Scrap.objects.filter(post=post.id, user=user).exists():
+                post.scrap_flag = True
+
+        post_serializer = ProfilePostSerializer(posts, many=True)
+
+        return Response(
+            {'message': '프로필 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
+            status=HTTP_200_OK)
