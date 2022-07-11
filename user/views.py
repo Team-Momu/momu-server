@@ -216,3 +216,23 @@ class ProfilePostView(views.APIView):
         return Response(
             {'message': '프로필 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
             status=HTTP_200_OK)
+
+
+class ProfileScrapView(views.APIView):
+    def get(self, request, pk):
+        user = get_object_or_404(User, pk=pk)
+        user_serializer = ProfileSerializer(user)
+
+        posts = Post.objects.filter(user_id=user)
+
+        for post in posts:
+            if Scrap.objects.filter(post=post.id, user=user).exists():
+                post.scrap_flag = True
+            else:
+                posts = posts.exclude(pk=post.id)
+
+        post_serializer = ProfilePostSerializer(posts, many=True)
+
+        return Response(
+            {'message': '프로필 스크랩 목록 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
+            status=HTTP_200_OK)

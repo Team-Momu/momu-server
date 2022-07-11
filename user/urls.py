@@ -13,5 +13,6 @@ urlpatterns = [
     path('token/verify/', TokenVerifyView.as_view()),
     path('profile/<int:pk>/', ProfileUpdateView.as_view()),
     path('profile/<int:pk>/post/', ProfilePostView.as_view()),
+    path('profile/<int:pk>/scrap/', ProfileScrapView.as_view()),
     path('types', MbtiView.as_view()),
 ]
