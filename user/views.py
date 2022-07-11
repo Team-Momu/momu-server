@@ -223,13 +223,8 @@ class ProfileScrapView(views.APIView):
         user = get_object_or_404(User, pk=pk)
         user_serializer = ProfileSerializer(user)
 
-        posts = Post.objects.filter(user_id=user)
-
-        for post in posts:
-            if Scrap.objects.filter(post=post.id, user=user).exists():
-                post.scrap_flag = True
-            else:
-                posts = posts.exclude(pk=post.id)
+        scrap_list = Scrap.objects.filter(user=user).values_list('post')
+        posts = Post.objects.filter(id__in=scrap_list) #스크랩 한 글 객체 목록
 
         post_serializer = ProfilePostSerializer(posts, many=True)
 
