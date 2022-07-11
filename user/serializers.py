@@ -2,7 +2,6 @@ from django.contrib.auth import get_user_model
 from .models import Mbti
 from rest_framework import serializers
 from feed.models import Post
-import feed
 
 User = get_user_model()
 

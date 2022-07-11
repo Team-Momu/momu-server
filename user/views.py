@@ -224,7 +224,10 @@ class ProfileScrapView(views.APIView):
         user_serializer = ProfileSerializer(user)
 
         scrap_list = Scrap.objects.filter(user=user).values_list('post')
-        posts = Post.objects.filter(id__in=scrap_list) #스크랩 한 글 객체 목록
+        posts = Post.objects.filter(id__in=scrap_list)  # 스크랩 한 글 객체 목록
+
+        for post in posts:
+            post.scrap_flag = True
 
         post_serializer = ProfilePostSerializer(posts, many=True)
 
