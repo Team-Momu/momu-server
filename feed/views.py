@@ -21,28 +21,28 @@ class PostPagination(CursorPagination):
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
-
     # TO REMOVE : 개발 중
     # permission_classes = UserPermission
 
     def get(self, request):
         size = 15
-        page = 1 if 'page' not in request.GET else request.GET.get('page')
-        if 'keyword' in request.GET:
-            keyword = request.GET.get('keyword')
-            rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
+        page = request.GET.get('page', 1)
 
-            url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
-            rect = '126.86417624432379,37.599026970443035,126.962764139611,37.5318164676656'
-            params = {'query': keyword, 'category_group_code': 'FD6', 'rect': rect, 'size': size, 'page': page}
-            headers = {'Authorization': 'KakaoAK ' + rest_api_key}
+        if 'keyword' not in request.GET:
+            return Response(status=HTTP_400_BAD_REQUEST)
 
-            data = requests.get(url, params=params, headers=headers).json()['documents']
-            total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
+        keyword = request.GET.get('keyword')
+        rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
 
-            return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
+        url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
+        rect = '126.86417624432379,37.599026970443035,126.962764139611,37.5318164676656'
+        params = {'query': keyword, 'category_group_code': 'FD6', 'rect': rect, 'size': size, 'page': page}
+        headers = {'Authorization': 'KakaoAK ' + rest_api_key}
 
-        return Response(status=HTTP_400_BAD_REQUEST)
+        data = requests.get(url, params=params, headers=headers).json()['documents']
+        total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
+
+        return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
     def post(self, request):
         request.data._mutable = True
