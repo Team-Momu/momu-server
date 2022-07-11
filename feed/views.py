@@ -5,6 +5,7 @@ from rest_framework import views
 from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
+from user.models import User
 from .serializers import PlaceSerializer, CommentSerializer, PostSerializer, ScrapSerializer
 from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
@@ -135,7 +136,7 @@ class PostListView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '게시글 등록 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 
 class PostDetailView(views.APIView):
@@ -160,12 +161,61 @@ class ScrapView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '스크랩 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '스크랩 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
-
+        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        
     def delete(self, request):
         user = self.request.data['user']
         post = self.request.data['post']
 
         Scrap.objects.get(user=user, post=post).delete()
 
-        return Response({'message': '스크랩 취소'}, status=HTTP_200_OK)
+        return Response({'message': '스크랩 취소 '}, status=HTTP_200_OK)
+
+
+class CommentSelectView(views.APIView):
+    permission_classes = [UserPermission]
+
+    def get_object_post(self, pk):
+        return get_object_or_404(Post, pk=pk)
+
+    def get_object_comment(self, pk):
+        return get_object_or_404(Comment, pk=pk)
+
+    def get_object_user(self, pk):
+        return get_object_or_404(User, pk=pk)
+
+    def post(self, request, post_pk, comment_pk):
+        post = self.get_object_post(pk=post_pk)
+        comment = self.get_object_comment(pk=comment_pk)
+
+        if int(str(post.user)) != request.user.id:
+            return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+        if post.selected_flag:
+            return Response({'message': '이미 답번이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
+
+        post.selected_flag = True
+        comment.select_flag = True
+        author = self.get_object_user(pk=int(str(comment.user)))
+        author.select_count += 1
+        comment.save()
+        author.save()
+        post.save()
+        return Response({'message': '답글 채택 성공'}, status=HTTP_201_CREATED)
+
+    def delete(self, request, post_pk, comment_pk):
+        post = self.get_object_post(pk=post_pk)
+        comment = self.get_object_comment(pk=comment_pk)
+
+        if int(str(post.user)) != request.user.id:
+            return Response({'message': '해당 게시글에서 답글 채택을 취소할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
+        if not comment.select_flag:
+            return Response({'message': '해당 답글이 채택되어 있지 않습니다'}, status=HTTP_400_BAD_REQUEST)
+
+        post.selected_flag = False
+        comment.select_flag = False
+        author = self.get_object_user(pk=int(str(comment.user)))
+        author.select_count -= 1
+        comment.save()
+        author.save()
+        post.save()
+        return Response({'message': '답글 채택 취소 성공'}, status=HTTP_200_OK)
