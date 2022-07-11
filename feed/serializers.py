@@ -45,6 +45,9 @@ class PostListSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'location', 'time', 'drink', 'member_count',
                   'comment_count', 'description', 'selected_flag', 'scrap_flag']
 
-    def create(self, validated_data):
-        print(validated_data['user'])
-        return Post.objects.create(**validated_data)
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'user', 'location', 'time', 'drink', 'member_count',
+                  'comment_count', 'description', 'selected_flag']

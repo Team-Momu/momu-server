@@ -6,7 +6,8 @@ from rest_framework.status import *
 from rest_framework.response import Response
 from .models import Post, Place, Comment, Scrap
 from user.models import User
-from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer, PostListSerializer, ScrapSerializer
+from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer,\
+    PostListSerializer, PostCreateSerializer, ScrapSerializer
 from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
 
@@ -119,8 +120,6 @@ class CommentView(views.APIView):
 
 
 class PostListView(views.APIView):
-    serializer_class = PostListSerializer
-
     def get(self, request):
         posts = Post.objects.all()
         user = self.request.data['user']
@@ -129,17 +128,17 @@ class PostListView(views.APIView):
             if Scrap.objects.filter(post=post.id, user=user).exists():
                 post.scrap_flag = True
 
-        serializer = self.serializer_class(posts, many=True)
+        serializer = PostListSerializer(posts, many=True)
 
-        return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
+        return Response({'message': '게시글 목록 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = PostCreateSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '잘못된 형식의 요청입니다: 게시글 정보', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 
 class PostDetailView(views.APIView):
