@@ -8,7 +8,8 @@ from rest_framework.pagination import CursorPagination
 
 from .models import Post, Place, Comment, Scrap
 from user.models import User
-from .serializers import PlaceSerializer, CommentSerializer, PostSerializer, ScrapSerializer
+from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer,\
+    PostListSerializer, PostCreateSerializer, ScrapSerializer
 
 from .pagination import PaginationHandlerMixin
 from user.permissions import UserPermission
@@ -28,7 +29,7 @@ class PlaceView(views.APIView):
         size = 15
         page = request.GET.get('page', 1)
 
-        if 'keyword' not in request.GET:
+        if 'keyword' not in request.GET or not request.GET.get('keyword'):
             return Response(status=HTTP_400_BAD_REQUEST)
 
         keyword = request.GET.get('keyword')
@@ -64,7 +65,7 @@ class PlaceView(views.APIView):
                 return Response({'message': '식당 저장 성공', 'place_id': serializer.data['id']}, status=HTTP_201_CREATED)
 
             else:
-                return Response({'message': '잘못된 입력값'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
+                return Response({'message': '잘못된 형식의 요청입니다'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
 
 
 class PostListView(views.APIView, PaginationHandlerMixin):
@@ -89,11 +90,12 @@ class PostListView(views.APIView, PaginationHandlerMixin):
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
-        serializer = self.serializer_class(data=request.data)
+        serializer = PostCreateSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '잘못된 형식의 요청입니다: 게시글 정보', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 
 class PostDetailView(views.APIView):
@@ -181,9 +183,9 @@ class ScrapView(views.APIView):
         user = self.request.data['user']
         post = self.request.data['post']
 
-        Scrap.objects.get(user=user, post=post).delete()
+        Scrap.objects.filter(user=user, post=post).delete()
 
-        return Response({'message': '스크랩 취소 '}, status=HTTP_200_OK)
+        return Response({'message': '스크랩 취소 성공 '}, status=HTTP_200_OK)
 
 
 class CommentSelectView(views.APIView):
@@ -205,7 +207,7 @@ class CommentSelectView(views.APIView):
         if int(str(post.user)) != request.user.id:
             return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
         if post.selected_flag:
-            return Response({'message': '이미 답번이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
+            return Response({'message': '이미 답변이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
 
         post.selected_flag = True
         comment.select_flag = True

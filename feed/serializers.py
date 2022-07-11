@@ -25,7 +25,7 @@ class CommentSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'post', 'place', 'place_img', 'visit_flag', 'description', 'select_flag']
 
 
-class PostSerializer(serializers.ModelSerializer):
+class PostDetailSerializer(serializers.ModelSerializer):
     user = ProfileSerializer(read_only=True)
     scrap_flag = serializers.BooleanField(default=False)
     comments = CommentSerializer(many=True, read_only=True)
@@ -34,3 +34,20 @@ class PostSerializer(serializers.ModelSerializer):
         model = Post
         fields = ['id', 'user', 'location', 'time', 'drink', 'member_count',
                   'comment_count', 'description', 'selected_flag', 'scrap_flag', 'comments']
+
+
+class PostListSerializer(serializers.ModelSerializer):
+    user = ProfileSerializer(read_only=True)
+    scrap_flag = serializers.BooleanField(default=False)
+
+    class Meta:
+        model = Post
+        fields = ['id', 'user', 'location', 'time', 'drink', 'member_count',
+                  'comment_count', 'description', 'selected_flag', 'scrap_flag']
+
+
+class PostCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Post
+        fields = ['id', 'user', 'location', 'time', 'drink', 'member_count',
+                  'comment_count', 'description', 'selected_flag']
