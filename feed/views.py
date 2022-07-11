@@ -36,7 +36,7 @@ class PlaceView(views.APIView):
             return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
         else:
-            return Response({'message': '키워드를 입력하세요'}, status=HTTP_400_BAD_REQUEST)
+            return Response({'message': '잘못된 형식의 요청입니다: 키워드 누락'}, status=HTTP_400_BAD_REQUEST)
 
     def post(self, request):
         request.data._mutable = True
