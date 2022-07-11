@@ -13,6 +13,7 @@ from momu.settings import KAKAO_CONFIG
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
+
     # TO REMOVE : 개발 중
     # permission_classes = UserPermission
 
@@ -135,7 +136,7 @@ class PostListView(views.APIView):
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '게시글 등록 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
 
 
 class PostDetailView(views.APIView):
@@ -156,10 +157,19 @@ class ScrapView(views.APIView):
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response({'message': '스크랩 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '스크랩 실패', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+        
+    def delete(self, request):
+        user = self.request.data['user']
+        post = self.request.data['post']
+
+        Scrap.objects.get(user=user, post=post).delete()
+
+        return Response({'message': '스크랩 취소 '}, status=HTTP_200_OK)
 
 
 class CommentSelectView(views.APIView):
