@@ -118,8 +118,8 @@ class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     # TO REMOVE : 개발 중
     # permission_classes = [UserPermission]
 
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.data['user'])
         serializer = self.serializer_class(user)
 
         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
@@ -197,8 +197,10 @@ class MbtiView(views.APIView):
 
 
 class ProfilePostView(views.APIView):
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
+    # permission_classes = [UserPermission]
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.data['user'])
         user_serializer = ProfileSerializer(user)
 
         posts = Post.objects.filter(user_id=user)
@@ -215,8 +217,10 @@ class ProfilePostView(views.APIView):
 
 
 class ProfileScrapView(views.APIView):
-    def get(self, request, pk):
-        user = get_object_or_404(User, pk=pk)
+    # permission_classes = [UserPermission]
+
+    def get(self, request):
+        user = get_object_or_404(User, pk=request.data['user'])
         user_serializer = ProfileSerializer(user)
 
         scrap_list = Scrap.objects.filter(user=user).values_list('post')
