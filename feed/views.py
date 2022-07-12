@@ -69,7 +69,6 @@ class PlaceView(views.APIView):
 
 
 class PostListView(views.APIView, PaginationHandlerMixin):
-    serializer_class = PostSerializer
     pagination_class = PostPagination
     permission_classes = [UserPermission]
 
@@ -83,9 +82,9 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
         cursor = self.paginate_queryset(posts)
         if cursor is not None:
-            serializer = self.get_paginated_response(PostSerializer(cursor, many=True).data)
+            serializer = self.get_paginated_response(PostListSerializer(cursor, many=True).data)
         else:
-            serializer = self.serializer_class(posts, many=True)
+            serializer = PostListSerializer(posts, many=True)
 
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
@@ -99,7 +98,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 
 class PostDetailView(views.APIView):
-    serializer_class = PostSerializer
+    serializer_class = PostDetailSerializer
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
