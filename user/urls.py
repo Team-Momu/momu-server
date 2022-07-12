@@ -11,6 +11,8 @@ urlpatterns = [
     path('kakao/', KakaoView.as_view()),
     path('token/refresh/', RefreshTokenView.as_view()),
     path('token/verify/', TokenVerifyView.as_view()),
-    path('profile/<int:pk>/', ProfileUpdateView.as_view()),
+    path('profile/', ProfileUpdateView.as_view()),
+    path('profile/post/', ProfilePostView.as_view()),
+    path('profile/scrap/', ProfileScrapView.as_view()),
     path('types', MbtiView.as_view()),
 ]
