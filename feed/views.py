@@ -4,40 +4,46 @@ from django.shortcuts import get_object_or_404
 from rest_framework import views
 from rest_framework.status import *
 from rest_framework.response import Response
+from rest_framework.pagination import CursorPagination
+
 from .models import Post, Place, Comment, Scrap
 from user.models import User
 from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer,\
     PostListSerializer, PostCreateSerializer, ScrapSerializer
+
+from .pagination import PaginationHandlerMixin
 from user.permissions import UserPermission
 from momu.settings import KAKAO_CONFIG
 
 
+class PostPagination(CursorPagination):
+    ordering = '-created_at'
+
+
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
-
     # TO REMOVE : 개발 중
     # permission_classes = UserPermission
 
     def get(self, request):
         size = 15
-        page = 1 if 'page' not in request.GET else request.GET.get('page')
+        page = request.GET.get('page', 1)
 
-        if 'keyword' in request.GET and request.GET.get('keyword'):
-            keyword = request.GET.get('keyword')
-            rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
+        if 'keyword' not in request.GET or not request.GET.get('keyword'):
+            return Response(status=HTTP_400_BAD_REQUEST)
 
-            url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
-            rect = '126.86417624432379,37.599026970443035,126.962764139611,37.5318164676656'
-            params = {'query': keyword, 'category_group_code': 'FD6', 'rect': rect, 'size': size, 'page': page}
-            headers = {'Authorization': 'KakaoAK ' + rest_api_key}
+        keyword = request.GET.get('keyword')
+        rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
 
-            data = requests.get(url, params=params, headers=headers).json()['documents']
-            total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
+        url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
+        rect = '126.86417624432379,37.599026970443035,126.962764139611,37.5318164676656'
+        params = {'query': keyword, 'category_group_code': 'FD6', 'rect': rect, 'size': size, 'page': page}
+        headers = {'Authorization': 'KakaoAK ' + rest_api_key}
 
-            return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
+        data = requests.get(url, params=params, headers=headers).json()['documents']
+        total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
 
-        else:
-            return Response({'message': '잘못된 형식의 요청입니다: 키워드 누락'}, status=HTTP_400_BAD_REQUEST)
+        return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
     def post(self, request):
         request.data._mutable = True
@@ -60,6 +66,48 @@ class PlaceView(views.APIView):
 
             else:
                 return Response({'message': '잘못된 형식의 요청입니다'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
+
+
+class PostListView(views.APIView, PaginationHandlerMixin):
+    pagination_class = PostPagination
+    permission_classes = [UserPermission]
+
+    def get(self, request):
+        posts = Post.objects.all()
+        user = self.request.user.id
+
+        for post in posts:
+            if Scrap.objects.filter(post=post.id, user=user).exists():
+                post.scrap_flag = True
+
+        cursor = self.paginate_queryset(posts)
+        if cursor is not None:
+            serializer = self.get_paginated_response(PostListSerializer(cursor, many=True).data)
+        else:
+            serializer = PostListSerializer(posts, many=True)
+
+        return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
+
+    def post(self, request):
+        serializer = PostCreateSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
+        return Response({'message': '잘못된 형식의 요청입니다: 게시글 정보', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
+
+
+class PostDetailView(views.APIView):
+    serializer_class = PostDetailSerializer
+
+    def get_object(self, pk):
+        return get_object_or_404(Post, pk=pk)
+
+    def get(self, request, pk):
+        post = self.get_object(pk)
+        serializer = self.serializer_class(post)
+
+        return Response({'message': '게시글 상세 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
 
 class CommentView(views.APIView):
@@ -117,41 +165,6 @@ class CommentView(views.APIView):
             }, status=HTTP_200_OK)
         else:
             return Response({'message': '잘못된 형식의 요청입니다: 답글 정보'}, status=HTTP_400_BAD_REQUEST)
-
-
-class PostListView(views.APIView):
-    def get(self, request):
-        posts = Post.objects.all()
-        user = self.request.data['user']
-
-        for post in posts:
-            if Scrap.objects.filter(post=post.id, user=user).exists():
-                post.scrap_flag = True
-
-        serializer = PostListSerializer(posts, many=True)
-
-        return Response({'message': '게시글 목록 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
-
-    def post(self, request):
-        serializer = PostCreateSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({'message': '게시글 등록 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
-        return Response({'message': '잘못된 형식의 요청입니다: 게시글 정보', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
-
-
-class PostDetailView(views.APIView):
-    serializer_class = PostDetailSerializer
-
-    def get_object(self, pk):
-        return get_object_or_404(Post, pk=pk)
-
-    def get(self, request, pk):
-        post = self.get_object(pk)
-        serializer = self.serializer_class(post)
-
-        return Response({'message': '게시글 상세 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
 
 class ScrapView(views.APIView):
