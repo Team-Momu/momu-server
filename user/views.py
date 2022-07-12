@@ -113,13 +113,11 @@ class KakaoView(views.APIView):
 
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     serializer_class = ProfileSerializer
+    permission_classes = [UserPermission]
     queryset = User.objects.all()
 
-    # TO REMOVE : 개발 중
-    # permission_classes = [UserPermission]
-
     def get(self, request):
-        user = get_object_or_404(User, pk=request.data['user'])
+        user = request.user
         serializer = self.serializer_class(user)
 
         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
@@ -197,10 +195,10 @@ class MbtiView(views.APIView):
 
 
 class ProfilePostView(views.APIView):
-    # permission_classes = [UserPermission]
+    permission_classes = [UserPermission]
 
     def get(self, request):
-        user = get_object_or_404(User, pk=request.data['user'])
+        user = request.user
         user_serializer = ProfileSerializer(user)
 
         posts = Post.objects.filter(user_id=user)
@@ -217,10 +215,10 @@ class ProfilePostView(views.APIView):
 
 
 class ProfileScrapView(views.APIView):
-    # permission_classes = [UserPermission]
+    permission_classes = [UserPermission]
 
     def get(self, request):
-        user = get_object_or_404(User, pk=request.data['user'])
+        user = request.user
         user_serializer = ProfileSerializer(user)
 
         scrap_list = Scrap.objects.filter(user=user).values_list('post')
