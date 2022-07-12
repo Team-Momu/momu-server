@@ -4,6 +4,7 @@ from django.shortcuts import redirect, get_object_or_404
 from django.core import signing
 from django.contrib.auth import get_user_model
 from rest_framework import views
+from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, \
     HTTP_403_FORBIDDEN
@@ -14,9 +15,14 @@ from user.serializers import *
 from user.permissions import UserPermission
 from feed.models import Post, Scrap
 
+from feed.pagination import PaginationHandlerMixin
 from momu.settings import KAKAO_CONFIG, env
 
 User = get_user_model()
+
+
+class PostPagination(CursorPagination):
+    ordering = '-created_at'
 
 
 # TO REMOVE : 프론트 처리 파트 -> 인가 코드
@@ -194,7 +200,8 @@ class MbtiView(views.APIView):
             return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
 
 
-class ProfilePostView(views.APIView):
+class ProfilePostView(views.APIView, PaginationHandlerMixin):
+    pagination_class = PostPagination
     permission_classes = [UserPermission]
 
     def get(self, request):
@@ -207,14 +214,19 @@ class ProfilePostView(views.APIView):
             if Scrap.objects.filter(post=post.id, user=user).exists():
                 post.scrap_flag = True
 
-        post_serializer = ProfilePostSerializer(posts, many=True)
+        cursor = self.paginate_queryset(posts)
+        if cursor is not None:
+            post_serializer = self.get_paginated_response(ProfilePostSerializer(cursor, many=True).data)
+        else:
+            post_serializer = ProfilePostSerializer(posts, many=True)
 
         return Response(
             {'message': '직성한 글 목록 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
             status=HTTP_200_OK)
 
 
-class ProfileScrapView(views.APIView):
+class ProfileScrapView(views.APIView, PaginationHandlerMixin):
+    pagination_class = PostPagination
     permission_classes = [UserPermission]
 
     def get(self, request):
@@ -227,7 +239,11 @@ class ProfileScrapView(views.APIView):
         for post in posts:
             post.scrap_flag = True
 
-        post_serializer = ProfilePostSerializer(posts, many=True)
+        cursor = self.paginate_queryset(posts)
+        if cursor is not None:
+            post_serializer = self.get_paginated_response(ProfilePostSerializer(cursor, many=True).data)
+        else:
+            post_serializer = ProfilePostSerializer(posts, many=True)
 
         return Response(
             {'message': '스크랩 한 글 목록 조회 성공', 'data': {'profile': user_serializer.data, 'post': post_serializer.data}},
