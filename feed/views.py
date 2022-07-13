@@ -77,13 +77,15 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
     def get(self, request):
         posts = Post.objects.all()
-        user = self.request.user.id
-
-        for post in posts:
-            if Scrap.objects.filter(post=post.id, user=user).exists():
-                post.scrap_flag = True
+        # user = request.user.id
+        user = 1
 
         cursor = self.paginate_queryset(posts)
+
+        for c in cursor:
+            if Scrap.objects.filter(post=c, user=user).exists():
+                c.scrap_flag = True
+
         if cursor is not None:
             serializer = self.get_paginated_response(PostListSerializer(cursor, many=True).data)
         else:

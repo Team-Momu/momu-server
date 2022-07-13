@@ -236,10 +236,11 @@ class ProfileScrapView(views.APIView, PaginationHandlerMixin):
         scrap_list = Scrap.objects.filter(user=user).values_list('post')
         posts = Post.objects.filter(id__in=scrap_list)  # 스크랩 한 글 객체 목록
 
-        for post in posts:
-            post.scrap_flag = True
-
         cursor = self.paginate_queryset(posts)
+
+        for c in cursor:
+            c.scrap_flag = True
+
         if cursor is not None:
             post_serializer = self.get_paginated_response(ProfilePostSerializer(cursor, many=True).data)
         else:
