@@ -126,13 +126,13 @@ class CommentView(views.APIView, PaginationHandlerMixin):
         if cursor is not None:
             serializer = self.get_paginated_response(CommentSerializer(cursor, many=True).data)
             return Response({
-                'message': '딥글 조회 성공',
+                'message': '답변 조회 성공',
                 'data': serializer.data,
             }, status=HTTP_200_OK)
         else:
             serializer = PostDetailSerializer(post)
             return Response({
-                'message': '딥글 조회 성공',
+                'message': '답변 조회 성공',
                 'data': serializer.data['comments'],
             }, status=HTTP_200_OK)
 
