@@ -70,7 +70,7 @@ class PlaceView(views.APIView):
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def get(self, request):
         posts = Post.objects.all()
