@@ -20,10 +20,13 @@ class PostPagination(CursorPagination):
     ordering = '-created_at'
 
 
+class CommentPagination(CursorPagination):
+    ordering = 'created_at'
+
+
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
-    # TO REMOVE : 개발 중
-    # permission_classes = UserPermission
+    permission_classes = UserPermission
 
     def get(self, request):
         size = 15
@@ -99,6 +102,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
+    permission_classes = [UserPermission]
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -110,9 +114,27 @@ class PostDetailView(views.APIView):
         return Response({'message': '게시글 상세 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
 
-class CommentView(views.APIView):
-    # TO REMOVE : 개발 중
-    # permission_classes = [UserPermission]
+class CommentView(views.APIView, PaginationHandlerMixin):
+    permission_classes = [UserPermission]
+    pagination_class = CommentPagination
+
+    def get(self, request, pk):
+        post = get_object_or_404(Post, pk=pk)
+        comments = Comment.objects.filter(post_id=pk)
+
+        cursor = self.paginate_queryset(comments)
+        if cursor is not None:
+            serializer = self.get_paginated_response(CommentSerializer(cursor, many=True).data)
+            return Response({
+                'message': '답변 조회 성공',
+                'data': serializer.data,
+            }, status=HTTP_200_OK)
+        else:
+            serializer = PostDetailSerializer(post)
+            return Response({
+                'message': '답변 조회 성공',
+                'data': serializer.data['comments'],
+            }, status=HTTP_200_OK)
 
     def post(self, request, pk):
         # 식당 등록
@@ -169,6 +191,7 @@ class CommentView(views.APIView):
 
 class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
+    permission_classes = [UserPermission]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
