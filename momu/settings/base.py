@@ -155,7 +155,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Kakao
 KAKAO_CONFIG = {
     'KAKAO_REST_API_KEY': env('KAKAO_REST_API_KEY'),
-    'KAKAO_REDIRECT_URI': 'http://localhost:8000/user/kakao',
+    'KAKAO_REDIRECT_URI': 'http://' + env('DJANGO_ALLOWED_HOSTS') + '/user/kakao',
     'KAKAO_CLIENT_SECRET_KEY': env('KAKAO_CLIENT_SECRET_KEY'),
 }
 
