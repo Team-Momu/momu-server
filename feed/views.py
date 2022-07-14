@@ -76,10 +76,21 @@ class PostListView(views.APIView, PaginationHandlerMixin):
     # permission_classes = [UserPermission]
 
     def get(self, request):
-        posts = Post.objects.all()
         # user = request.user.id
         user = 1
 
+        location = request.GET.get('location')
+        time = request.GET.get('time')
+        drink = request.GET.get('drink')
+        member_count = request.GET.get('member_count')
+
+        params = {'location': location, 'time': time, 'drink': drink, 'member_count': member_count}
+        arguments = {}
+        for key, value in params.items():
+            if value:
+                arguments[key] = value
+
+        posts = Post.objects.filter(**arguments)
         cursor = self.paginate_queryset(posts)
 
         for c in cursor:
