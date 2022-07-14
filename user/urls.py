@@ -14,5 +14,5 @@ urlpatterns = [
     path('profile/', ProfileUpdateView.as_view()),
     path('profile/post/', ProfilePostView.as_view()),
     path('profile/scrap/', ProfileScrapView.as_view()),
-    path('types', MbtiView.as_view()),
+    path('types/', MbtiView.as_view()),
 ]
