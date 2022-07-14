@@ -59,7 +59,7 @@ class KakaoView(views.APIView):
 
         # 토큰으로 사용자 정보 가져오기
         kakao_access_token = token_response.get('access_token')
-        kakao_user_info_api = 'https://kapi.kakao.com/v2/user/me'
+        kakao_user_info_api = 'https://kapi.kakao.com/v2/user/me?secure_resource=true'
         user_info_headers = {
             'Authorization': f'Bearer {kakao_access_token}',
             'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
@@ -68,7 +68,6 @@ class KakaoView(views.APIView):
         user_info_response = requests.get(kakao_user_info_api, headers=user_info_headers).json()
 
         kakao_id = user_info_response.get('id')
-        # user_info = user_info_response.get('kakao_account')
         if not kakao_id:
             return Response({'message': '카카오 유저 정보를 받아올 수 없습니다'}, status=HTTP_400_BAD_REQUEST)
 
