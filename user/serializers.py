@@ -9,7 +9,7 @@ User = get_user_model()
 class MbtiSerializer(serializers.ModelSerializer):
     class Meta:
         model = Mbti
-        fields = ['id', 'mbti', 'description']
+        fields = ['id', 'mbti', 'type', 'description', 'mbti_img']
 
 
 class UserSerializer(serializers.ModelSerializer):

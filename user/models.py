@@ -4,7 +4,9 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 class Mbti(models.Model):
     mbti = models.CharField(max_length=10)
+    type = models.CharField(max_length=10)
     description = models.TextField()
+    mbti_img = models.FileField(blank=True)  # TO FIX: blank 옵션 제거
 
     def __str__(self):
         return self.mbti
