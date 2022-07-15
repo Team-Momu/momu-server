@@ -204,7 +204,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
 class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
