@@ -58,6 +58,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 
 REST_FRAMEWORK = {
+    'DATETIME_FORMAT': '%Y.%m.%d',
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
