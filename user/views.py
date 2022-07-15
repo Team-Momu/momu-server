@@ -59,7 +59,7 @@ class KakaoView(views.APIView):
 
         # 토큰으로 사용자 정보 가져오기
         kakao_access_token = token_response.get('access_token')
-        kakao_user_info_api = 'https://kapi.kakao.com/v2/user/me?secure_resource=true'
+        kakao_user_info_api = 'https://kapi.kakao.com/v2/user/me'
         user_info_headers = {
             'Authorization': f'Bearer {kakao_access_token}',
             'Content-type': 'application/x-www-form-urlencoded;charset=utf-8',
