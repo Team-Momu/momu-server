@@ -26,7 +26,7 @@ class CommentPagination(CursorPagination):
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
-    permission_classes = UserPermission
+    permission_classes = [UserPermission]
 
     def get(self, request):
         size = 15
