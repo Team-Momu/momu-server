@@ -105,6 +105,9 @@ class PostListView(views.APIView, PaginationHandlerMixin):
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
+        # user = request.user.id
+        user = 1
+        request.data['user'] = user
         serializer = PostCreateSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -207,6 +210,9 @@ class ScrapView(views.APIView):
     # permission_classes = [UserPermission]
 
     def post(self, request):
+        # user = request.user.id
+        user = 1
+        request.data['user'] = user
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
