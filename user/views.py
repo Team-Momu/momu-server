@@ -110,8 +110,10 @@ class KakaoView(views.APIView):
             'user': user.id,
         }, status=status_code)
 
-        response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
+        # response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
+        # response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
+        response.set_cookie('access_token', access_token, httponly=True, domain='localhost:3000')
+        response.set_cookie('refresh_token', refresh_token, httponly=True, domain='localhost:3000')
 
         return response
 
@@ -156,8 +158,10 @@ class RefreshTokenView(views.APIView):
                 'user': user.id,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com', samesite=None, secure=True)
-            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com', samesite=None, secure=True)
+            # response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com', samesite=None, secure=True)
+            # response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com', samesite=None, secure=True)
+            response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='localhost:3000')
+            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='localhost:3000')
             return response
 
         # 리프레시 토큰 만료
