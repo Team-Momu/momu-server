@@ -107,6 +107,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
     def post(self, request):
         # user = request.user.id
         user = 1
+        request.data._mutable = True
         request.data['user'] = user
         serializer = PostCreateSerializer(data=request.data)
 
@@ -212,6 +213,7 @@ class ScrapView(views.APIView):
     def post(self, request):
         # user = request.user.id
         user = 1
+        request.data._mutable = True
         request.data['user'] = user
         serializer = self.serializer_class(data=request.data)
 
