@@ -118,7 +118,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -277,3 +277,4 @@ class CommentSelectView(views.APIView):
         author.save()
         post.save()
         return Response({'message': '답글 채택 취소 성공'}, status=HTTP_200_OK)
+
