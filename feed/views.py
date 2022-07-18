@@ -51,7 +51,7 @@ class PlaceView(views.APIView):
     def post(self, request):
         request.data._mutable = True
 
-        data = self.request.data
+        data = request.data
         data['region'] = data['region'].split()[2]
         data['category_name'] = data['category_name'].split(' > ')[1]
 
@@ -105,6 +105,9 @@ class PostListView(views.APIView, PaginationHandlerMixin):
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
+        # user = request.user.id
+        user = 1
+        request.data['user'] = user
         serializer = PostCreateSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -207,6 +210,9 @@ class ScrapView(views.APIView):
     # permission_classes = [UserPermission]
 
     def post(self, request):
+        # user = request.user.id
+        user = 1
+        request.data['user'] = user
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
@@ -215,8 +221,9 @@ class ScrapView(views.APIView):
         return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
         
     def delete(self, request):
-        user = self.request.data['user']
-        post = self.request.data['post']
+        # user = request.user.id
+        user = 1
+        post = request.data['post']
 
         Scrap.objects.filter(user=user, post=post).delete()
 
