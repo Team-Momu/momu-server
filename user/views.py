@@ -40,7 +40,7 @@ class KakaoView(views.APIView):
     def get(self, request):
         code = request.GET.get('code')
         if not code:
-            return Response(status=HTTP_400_BAD_REQUEST)
+            return Response({'message': '인가코드를 전달받지 못했습니다'}, status=HTTP_400_BAD_REQUEST)
 
         # 토큰 받기
         kakao_token_api = 'https://kauth.kakao.com/oauth/token'
