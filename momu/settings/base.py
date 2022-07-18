@@ -156,7 +156,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Kakao
 KAKAO_CONFIG = {
     'KAKAO_REST_API_KEY': env('KAKAO_REST_API_KEY'),
-    'KAKAO_REDIRECT_URI': 'http://localhost:3000/user/kakao/authorize/',
+    'KAKAO_REDIRECT_URI': 'https://momueat.com/user/kakao/authorize/',
     'KAKAO_CLIENT_SECRET_KEY': env('KAKAO_CLIENT_SECRET_KEY'),
 }
 
