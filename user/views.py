@@ -40,7 +40,7 @@ class KakaoView(views.APIView):
     def get(self, request):
         code = request.GET.get('code')
         if not code:
-            return Response(status=HTTP_400_BAD_REQUEST)
+            return Response({'message': '인가코드를 전달받지 못했습니다'}, status=HTTP_400_BAD_REQUEST)
 
         # 토큰 받기
         kakao_token_api = 'https://kauth.kakao.com/oauth/token'
@@ -110,8 +110,10 @@ class KakaoView(views.APIView):
             'user': user.id,
         }, status=status_code)
 
-        response.set_cookie('access_token', access_token, httponly=True, samesite=None, secure=True)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, samesite=None, secure=True)
+        # response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
+        # response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
+        response.set_cookie('access_token', access_token, httponly=True, domain='http://localhost:3000')
+        response.set_cookie('refresh_token', refresh_token, httponly=True, domain='http://localhost:3000')
 
         return response
 
@@ -156,8 +158,10 @@ class RefreshTokenView(views.APIView):
                 'user': user.id,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', serializer.data['access'], httponly=True, samesite=None, secure=True)
-            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, samesite=None, secure=True)
+            # response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com', samesite=None, secure=True)
+            # response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com', samesite=None, secure=True)
+            response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='http://localhost:3000')
+            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='http://localhost:3000')
             return response
 
         # 리프레시 토큰 만료
