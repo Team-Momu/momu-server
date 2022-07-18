@@ -110,8 +110,8 @@ class KakaoView(views.APIView):
             'user': user.id,
         }, status=status_code)
 
-        response.set_cookie('access_token', access_token, httponly=True, samesite=None, secure=True)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, samesite=None, secure=True)
+        response.set_cookie('access_token', access_token, httponly=True)
+        response.set_cookie('refresh_token', refresh_token, httponly=True)
 
         return response
 
