@@ -53,28 +53,16 @@ INSTALLED_APPS = [
 ]
 
 # cors headers
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = False
 CORS_ALLOWED_ORIGINS = [
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
     'http://localhost:3000',
     'http://127.0.0.1:3000',
     'https://momueat.com',
+    'https://api.momueat.com',
 ]
 CORS_ALLOW_CREDENTIALS = True
-
-# csrf
-# CSRF_COOKIE_SECURE = True
-# SESSION_COOKIE_SECURE = True
-# CSRF_COOKIE_SAMESITE = None
-# SESSION_COOKIE_SAMESITE = None
-CSRF_COOKIE_HTTPONLY = True  # TO REMOVE : 지워도 동작
-SESSION_COOKIE_DOMAIN = 'http://localhost:3000'
-CSRF_TRUSTED_ORIGINS = [
-    'http://127.0.0.1:3000',
-    'http://localhost:3000',
-    'http://localhost:8000',
-    'https://api.momueat.com',
-    'https://momueat.com',
-]
 
 
 REST_FRAMEWORK = {
