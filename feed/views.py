@@ -13,6 +13,7 @@ from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerialize
 
 from .pagination import PaginationHandlerMixin
 from user.permissions import UserPermission
+from rest_framework.permissions import IsAuthenticated
 from momu.settings import KAKAO_CONFIG
 
 
@@ -74,10 +75,11 @@ class PlaceView(views.APIView):
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
     # permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        # user = request.user.id
-        user = 1
+        user = request.user.id
+        # user = 1
 
         location = request.GET.get('location')
         time = request.GET.get('time')
@@ -105,8 +107,8 @@ class PostListView(views.APIView, PaginationHandlerMixin):
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
-        # user = request.user.id
-        user = 1
+        user = request.user.id
+        # user = 1
         request.data._mutable = True
         request.data['user'] = user
         serializer = PostCreateSerializer(data=request.data)
