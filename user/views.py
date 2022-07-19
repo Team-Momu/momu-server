@@ -108,6 +108,8 @@ class KakaoView(views.APIView):
         response = Response({
             'message': message,
             'user': user.id,
+            'access_token': access_token,
+            'refresh_token': refresh_token,
         }, status=status_code)
 
         # response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
