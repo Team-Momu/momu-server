@@ -27,7 +27,7 @@ class CommentPagination(CursorPagination):
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def get(self, request):
         size = 15
@@ -75,11 +75,10 @@ class PlaceView(views.APIView):
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
     # permission_classes = [UserPermission]
-    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        user = request.user.id
-        # user = 1
+        # user = request.user.id
+        user = 1
 
         location = request.GET.get('location')
         time = request.GET.get('time')
@@ -107,8 +106,8 @@ class PostListView(views.APIView, PaginationHandlerMixin):
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
     def post(self, request):
-        user = request.user.id
-        # user = 1
+        # user = request.user.id
+        user = 1
         request.data._mutable = True
         request.data['user'] = user
         serializer = PostCreateSerializer(data=request.data)
@@ -122,6 +121,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
     # permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -134,7 +134,7 @@ class PostDetailView(views.APIView):
 
 
 class CommentView(views.APIView, PaginationHandlerMixin):
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
     pagination_class = CommentPagination
 
     def get(self, request, pk):
@@ -183,7 +183,8 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
         # 답글 등록
         comment_data = {
-            'user': request.user.id,
+            # 'user': request.user.id,
+            'user': 1,
             'post': pk,
             'place': place,
             'place_img': request.data['place_img'],
@@ -235,7 +236,7 @@ class ScrapView(views.APIView):
 
 
 class CommentSelectView(views.APIView):
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -250,7 +251,8 @@ class CommentSelectView(views.APIView):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
 
-        if int(str(post.user)) != request.user.id:
+        # if int(str(post.user)) != request.user.id:
+        if int(str(post.user)) != 1:
             return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
         if post.selected_flag:
             return Response({'message': '이미 답변이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
@@ -268,7 +270,8 @@ class CommentSelectView(views.APIView):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
 
-        if int(str(post.user)) != request.user.id:
+        # if int(str(post.user)) != request.user.id:
+        if int(str(post.user)) != 1:
             return Response({'message': '해당 게시글에서 답글 채택을 취소할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
         if not comment.select_flag:
             return Response({'message': '해당 답글이 채택되어 있지 않습니다'}, status=HTTP_400_BAD_REQUEST)

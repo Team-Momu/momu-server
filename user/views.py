@@ -13,6 +13,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import UpdateModelMixin
 from user.serializers import *
 from user.permissions import UserPermission
+from rest_framework.permissions import IsAuthenticated
 from feed.models import Post, Scrap
 
 from feed.pagination import PaginationHandlerMixin
@@ -122,7 +123,8 @@ class KakaoView(views.APIView):
 
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     serializer_class = ProfileSerializer
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
 
     def get(self, request):
@@ -182,8 +184,8 @@ class RefreshTokenView(views.APIView):
 
 
 class MbtiView(views.APIView):
-    # TO REMOVE : 개발 중
     # permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         mbti = request.data['mbti']
@@ -207,10 +209,11 @@ class MbtiView(views.APIView):
 
 class ProfilePostView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def get(self, request):
-        user = request.user
+        user = 1
+        # user = request.user
         user_serializer = ProfileSerializer(user)
 
         posts = Post.objects.filter(user_id=user)
@@ -232,10 +235,11 @@ class ProfilePostView(views.APIView, PaginationHandlerMixin):
 
 class ProfileScrapView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    # permission_classes = [UserPermission]
 
     def get(self, request):
-        user = request.user
+        user = 1
+        # user = request.user
         user_serializer = ProfileSerializer(user)
 
         scrap_list = Scrap.objects.filter(user=user).values_list('post')
