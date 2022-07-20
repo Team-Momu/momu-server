@@ -9,8 +9,6 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, \
     HTTP_403_FORBIDDEN
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import UpdateModelMixin
 from user.serializers import *
 from user.permissions import UserPermission
 from rest_framework.permissions import IsAuthenticated
@@ -121,11 +119,12 @@ class KakaoView(views.APIView):
         return response
 
 
-class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
+class ProfileUpdateView(views.APIView):
     serializer_class = ProfileSerializer
     # permission_classes = [UserPermission]
-    # permission_classes = [IsAuthenticated]
-    queryset = User.objects.all()
+
+    def get_object_user(self, pk):
+        return get_object_or_404(User, pk=pk)
 
     def get(self, request):
         # user = request.user
@@ -134,8 +133,21 @@ class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
 
         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
-    def put(self, request, *args, **kwargs):
-        return self.partial_update(request, *args, **kwargs)
+    def put(self, request):
+        # user = request.user
+        user = 1
+
+        user_object = self.get_object_user(pk=str(user))
+        user_object.nickname = request.data['nickname']
+        user_object.profile_img = request.data['profile_img']
+        user_object.save()
+
+        serializer = self.serializer_class(user_object)
+
+        return Response({
+            'message': '프로필 설정 성공',
+            'data': serializer.data,
+        }, status=HTTP_200_OK)
 
 
 class RefreshTokenView(views.APIView):
