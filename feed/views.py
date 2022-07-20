@@ -121,7 +121,6 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
     # permission_classes = [UserPermission]
-    permission_classes = [IsAuthenticated]
 
     def get_object(self, pk):
         return get_object_or_404(Post, pk=pk)
