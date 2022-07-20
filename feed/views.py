@@ -222,7 +222,6 @@ class ScrapView(views.APIView):
         post = get_object_or_404(Post, pk=request.data['post'])
 
         data = {'post': post.id, 'user': user}
-
         serializer = self.serializer_class(data=data)
 
         if serializer.is_valid():
