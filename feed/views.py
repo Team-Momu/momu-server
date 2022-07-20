@@ -219,8 +219,9 @@ class ScrapView(views.APIView):
         if not request.data or not request.data['post']:
             return Response({'message': '잘못된 형식의 요청입니다: post'}, status=HTTP_408_REQUEST_TIMEOUT)
 
-        data = {'post': request.data['post'], 'user': user}
-        serializer = self.serializer_class(data=data)
+        request.data._mutable = True
+        request.data['user'] = user
+        serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
