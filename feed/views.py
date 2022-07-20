@@ -216,8 +216,7 @@ class ScrapView(views.APIView):
     def post(self, request):
         # user = request.user.id
         user = 1
-        request.data._mutable = True
-        request.data['user'] = user
+
         post = get_object_or_404(Post, pk=request.data['post'])
 
         data = {'post': post.id, 'user': user}
