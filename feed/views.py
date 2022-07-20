@@ -218,7 +218,11 @@ class ScrapView(views.APIView):
         user = 1
         request.data._mutable = True
         request.data['user'] = user
-        serializer = self.serializer_class(data=request.data)
+        post = get_object_or_404(Post, pk=request.data['post'])
+
+        data = {'post': post.id, 'user': user}
+
+        serializer = self.serializer_class(data=data)
 
         if serializer.is_valid():
             serializer.save()
