@@ -124,11 +124,12 @@ class KakaoView(views.APIView):
 class ProfileUpdateView(GenericAPIView, UpdateModelMixin):
     serializer_class = ProfileSerializer
     # permission_classes = [UserPermission]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
     queryset = User.objects.all()
 
     def get(self, request):
-        user = request.user
+        # user = request.user
+        user = 1
         serializer = self.serializer_class(user)
 
         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
