@@ -188,7 +188,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
             # 'user': request.user.id,
             'user': 1,
             'post': pk,
-            'place': 2,
+            'place': place,
             'place_img': request.FILES.get('place_img'),
             'description': request.data['description'],
         }
