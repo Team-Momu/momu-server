@@ -108,9 +108,12 @@ class PostListView(views.APIView, PaginationHandlerMixin):
     def post(self, request):
         # user = request.user.id
         user = 1
-        request.data._mutable = True
-        request.data['user'] = user
-        serializer = PostCreateSerializer(data=request.data)
+
+        post_data = {
+            'user': user, 'location': request.data['location'], 'time': request.data['time'],
+            'drink': request.data['drink'], 'member_count': request.data['member_count']
+                     }
+        serializer = PostCreateSerializer(data=post_data)
 
         if serializer.is_valid():
             serializer.save()
@@ -219,9 +222,8 @@ class ScrapView(views.APIView):
         if not request.data or not request.data['post']:
             return Response({'message': '잘못된 형식의 요청입니다: post'}, status=HTTP_408_REQUEST_TIMEOUT)
 
-        request.data._mutable = True
-        request.data['user'] = user
-        serializer = self.serializer_class(data=request.data)
+        scrap_data = {'post': request.data['post'], 'user': user}
+        serializer = self.serializer_class(data=scrap_data)
 
         if serializer.is_valid():
             serializer.save()
