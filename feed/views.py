@@ -9,7 +9,7 @@ from rest_framework.pagination import CursorPagination
 from .models import Post, Place, Comment, Scrap
 from user.models import User
 from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer,\
-    PostListSerializer, PostCreateSerializer, ScrapSerializer
+    PostListSerializer, PostCreateSerializer, ScrapSerializer, CommentCreateSerializer
 
 from .pagination import PaginationHandlerMixin
 from user.permissions import UserPermission
@@ -160,18 +160,18 @@ class CommentView(views.APIView, PaginationHandlerMixin):
     def post(self, request, pk):
         # 식당 등록
         place_data = request.data['place']
-        place_id = place_data.id
+        place_id = place_data['place_id']
         if not Place.objects.filter(place_id=place_id).exists():
             place_request_data = {
                 'place_id': place_id,
-                'place_name': place_data.place_name,
-                'category_name': place_data.category_name.split(' > ')[1],
-                'phone': place_data.phone,
-                'road_address_name': place_data.road_address_name,
-                'region': place_data.address_name.split()[2],
-                'place_x': place_data.x,
-                'place_y': place_data.y,
-                'place_url': place_data.place_url
+                'place_name': place_data['place_name'],
+                'category_name': place_data['category_name'].split(' > ')[1],
+                'phone': place_data['phone'],
+                'road_address_name': place_data['road_address_name'],
+                'region': place_data['address_name'].split()[2],
+                'place_x': place_data['place_x'],
+                'place_y': place_data['place_y'],
+                'place_url': place_data['place_url']
             }
             place_serializer = PlaceSerializer(data=place_request_data)
             if place_serializer.is_valid():
@@ -181,20 +181,18 @@ class CommentView(views.APIView, PaginationHandlerMixin):
                 return Response({'message': '잘못된 형식의 요청입니다: 식당 정보'}, status=HTTP_400_BAD_REQUEST)
         else:
             place_object = Place.objects.get(place_id=place_id)
-            place = PlaceSerializer(place_object).data['id']
+            place = place_object.id
 
         # 답글 등록
         comment_data = {
             # 'user': request.user.id,
             'user': 1,
             'post': pk,
-            'place': place,
+            'place': 2,
             'place_img': request.data['place_img'],
-            'visit_flag': request.data['visit_flag'],
             'description': request.data['description'],
-            'select_flag': request.data['select_flag'],
         }
-        comment_serializer = CommentSerializer(data=comment_data)
+        comment_serializer = CommentCreateSerializer(data=comment_data)
         if comment_serializer.is_valid():
             comment_serializer.save()
 

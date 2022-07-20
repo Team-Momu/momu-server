@@ -22,7 +22,13 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'post', 'place', 'place_img', 'visit_flag', 'description', 'select_flag']
+        fields = ['id', 'user', 'post', 'place', 'place_img', 'description', 'select_flag']
+
+
+class CommentCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Comment
+        fields = ['id', 'user', 'post', 'place', 'place_img','description']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
