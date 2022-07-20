@@ -185,7 +185,7 @@ class RefreshTokenView(views.APIView):
 
 class MbtiView(views.APIView):
     # permission_classes = [UserPermission]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def post(self, request):
         mbti = request.data['mbti']
@@ -194,8 +194,8 @@ class MbtiView(views.APIView):
             mbti_object = Mbti.objects.get(mbti=mbti)
             serializer = MbtiSerializer(mbti_object)
 
-            user = get_object_or_404(User, pk=request.user.id)
-            user.mbti = serializer.data['id']
+            user = get_object_or_404(User, pk=4)
+            user.mbti = mbti_object
             user.save()
 
             return Response({
