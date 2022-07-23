@@ -13,9 +13,16 @@ class DateTime(models.Model):
 
 
 class Post(DateTime):
+    TIME_CHOICES = (
+        ('아침', '아침'),
+        ('점심', '점심'),
+        ('저녁', '저녁'),
+        ('밤', '밤'),
+    )
+
     user = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
     location = models.TextField()
-    time = models.CharField(max_length=10)
+    time = models.CharField(choices=TIME_CHOICES, max_length=10)
     drink = models.PositiveIntegerField()
     member_count = models.PositiveIntegerField()
     comment_count = models.PositiveIntegerField(default=0)
@@ -50,8 +57,7 @@ class Comment(DateTime):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    place_img = models.FileField(blank=True)
-    visit_flag = models.BooleanField(default=False)
+    place_img = models.FileField(null=True)
     description = models.TextField(blank=True)
     select_flag = models.BooleanField(default=False)
 
