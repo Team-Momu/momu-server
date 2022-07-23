@@ -138,7 +138,13 @@ class ProfileUpdateView(views.APIView):
 
         filename = request.FILES.get('profile_img')
         if filename:
-            user_object.profile_img = s3client.upload(filename)
+            url = s3client.upload(filename)
+            if not url:
+                return Response({'message': '이미지 업로드 실패'}, status=HTTP_400_BAD_REQUEST)
+            user_object.profile_img = url
+            user_object.save()
+        else:
+            user_object.profile_img = None
             user_object.save()
 
         serializer = self.serializer_class(user_object)
