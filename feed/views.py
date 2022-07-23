@@ -15,6 +15,7 @@ from .pagination import PaginationHandlerMixin
 from user.permissions import UserPermission
 from rest_framework.permissions import IsAuthenticated
 from momu.settings import KAKAO_CONFIG
+from .s3storages import s3client
 
 
 class PostPagination(CursorPagination):
@@ -184,15 +185,25 @@ class CommentView(views.APIView, PaginationHandlerMixin):
             place = place_object.id
 
         # 답글 등록
+        filename = request.FILES.get('place_img')
+        if filename:
+            url = s3client.upload(filename)
+            if not url:
+                return Response({'message': '이미지 업로드 실패'}, status=HTTP_400_BAD_REQUEST)
+        else:
+            url = None
+
         comment_data = {
             # 'user': request.user.id,
             'user': 1,
             'post': pk,
             'place': place,
-            'place_img': request.FILES.get('place_img'),
-            'description': request.data['description'],
+            'place_img': url,
+            'description': request.data['description']
         }
+
         comment_serializer = CommentCreateSerializer(data=comment_data)
+
         if comment_serializer.is_valid():
             comment_serializer.save()
 

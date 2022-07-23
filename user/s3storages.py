@@ -8,8 +8,8 @@ class S3Client:
     def __init__(self, access_key, secret_key, bucket_name):
         self.s3client = boto3.client(
             's3',
-            aws_access_key_id = access_key,
-            aws_secret_access_key = secret_key,
+            aws_access_key_id=access_key,
+            aws_secret_access_key=secret_key,
         )
         self.bucket_name = bucket_name
 
@@ -21,7 +21,7 @@ class S3Client:
                 file,
                 self.bucket_name,
                 final_path,
-                ExtraArgs = {
+                ExtraArgs={
                     'ContentType': file.content_type
                 }
             )

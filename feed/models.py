@@ -70,7 +70,7 @@ class Comment(DateTime):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(Post, related_name='comments', on_delete=models.CASCADE)
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
-    place_img = models.FileField(null=True)
+    place_img = models.TextField(null=True)
     description = models.TextField(blank=True)
     select_flag = models.BooleanField(default=False)
 
@@ -84,11 +84,3 @@ class Scrap(DateTime):
 
     def __str__(self):
         return str(self.id)
-
-
-class Image(DateTime):
-    url = models.TextField()
-    comment = models.ForeignKey(Comment, related_name='images', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.url
