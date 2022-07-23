@@ -71,3 +71,11 @@ class Scrap(DateTime):
 
     def __str__(self):
         return str(self.id)
+
+
+class Image(DateTime):
+    url = models.TextField()
+    comment = models.ForeignKey(Comment, related_name='images', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.url
