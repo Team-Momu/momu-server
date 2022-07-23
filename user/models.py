@@ -3,7 +3,26 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, BaseU
 
 
 class Mbti(models.Model):
-    mbti = models.CharField(max_length=10)
+    MBTI_CHOICES = (
+        ('CIMJ', 'CIMJ'),
+        ('CIMR', 'CIMR'),
+        ('NIMJ', 'NIMJ'),
+        ('CITJ', 'CITJ'),
+        ('NIMR', 'NIMR'),
+        ('CITR', 'CITR'),
+        ('NITJ', 'NITJ'),
+        ('COMJ', 'COMJ'),
+        ('NITR', 'NITR'),
+        ('NOMJ', 'NOMJ'),
+        ('COMR', 'COMR'),
+        ('NOMR', 'NOMR'),
+        ('COTJ', 'COTJ'),
+        ('NOTJ', 'NOTJ'),
+        ('COTR', 'COTR'),
+        ('NOTR', 'NOTR'),
+    )
+
+    mbti = models.CharField(choices=MBTI_CHOICES, max_length=10)
     type = models.CharField(max_length=10)
     description = models.TextField()
 
