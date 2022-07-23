@@ -131,7 +131,7 @@ class ProfileUpdateView(views.APIView):
 
     def put(self, request):
         # user = request.user
-        user = 1
+        user = self.get_object_user(pk=1)
 
         user_object = self.get_object_user(pk=str(user))
         user_object.nickname = request.data['nickname']
