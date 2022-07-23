@@ -6,7 +6,6 @@ class Mbti(models.Model):
     mbti = models.CharField(max_length=10)
     type = models.CharField(max_length=10)
     description = models.TextField()
-    mbti_img = models.FileField(blank=True)  # TO FIX: blank 옵션 제거
 
     def __str__(self):
         return self.mbti
@@ -43,7 +42,7 @@ class UserManager(BaseUserManager):
 class User(AbstractBaseUser, PermissionsMixin):
     kakao_id = models.TextField()
     nickname = models.CharField(max_length=30, unique=True, null=True)
-    profile_img = models.FileField(null=True)
+    profile_img = models.TextField(null=True)
     mbti = models.ForeignKey(Mbti, on_delete=models.SET_NULL, null=True)
     level = models.PositiveIntegerField(default=5)
     select_count = models.PositiveIntegerField(default=0)
