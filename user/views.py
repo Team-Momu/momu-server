@@ -1,7 +1,6 @@
 import requests
 import jwt
 from django.shortcuts import redirect, get_object_or_404
-from django.core import signing
 from django.contrib.auth import get_user_model
 from rest_framework import views
 from rest_framework.pagination import CursorPagination
@@ -74,7 +73,6 @@ class KakaoView(views.APIView):
         try:
             # 로그인
             kakao_user = User.objects.get(kakao_id=kakao_id)
-            # TO FIX : 개선 필요
             serializer = UserSerializer(kakao_user, data=user_data)
             message = '로그인 성공'
             status_code = HTTP_200_OK
@@ -91,10 +89,7 @@ class KakaoView(views.APIView):
         refresh_token = str(momu_token)
         access_token = str(momu_token.access_token)
 
-        # TO FIX : 암호화 로직
-        # salt = uuid.uuid4()
-        # signer = signing.Signer(salt)
-        # hashed_refresh = signer.sign(refresh_token)
+        # TO FIX : refresh token 암호화 추가
 
         refresh_data = {
             'kakao_id': kakao_id,
@@ -207,7 +202,7 @@ class MbtiView(views.APIView):
             mbti_object = Mbti.objects.get(mbti=mbti)
             serializer = MbtiSerializer(mbti_object)
 
-            user = get_object_or_404(User, pk=4)
+            user = get_object_or_404(User, pk=1)
             user.mbti = mbti_object
             user.save()
 
