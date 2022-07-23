@@ -13,6 +13,7 @@ from user.permissions import UserPermission
 from rest_framework.permissions import IsAuthenticated
 from feed.models import Post, Scrap
 
+from .s3storages import s3client
 from feed.pagination import PaginationHandlerMixin
 from momu.settings import KAKAO_CONFIG, env
 
@@ -134,8 +135,17 @@ class ProfileUpdateView(views.APIView):
 
         user_object = self.get_object_user(pk=str(user))
         user_object.nickname = request.data['nickname']
-        user_object.profile_img = request.data['profile_img']
-        user_object.save()
+
+        filename = request.FILES.get('profile_img')
+        if filename:
+            url = s3client.upload(filename)
+            if not url:
+                return Response({'message': '이미지 업로드 실패'}, status=HTTP_400_BAD_REQUEST)
+            user_object.profile_img = url
+            user_object.save()
+        else:
+            user_object.profile_img = None
+            user_object.save()
 
         serializer = self.serializer_class(user_object)
 

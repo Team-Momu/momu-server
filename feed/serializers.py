@@ -1,4 +1,4 @@
-from .models import Post, Place, Comment, Scrap
+from .models import Post, Place, Comment, Scrap, Image
 from user.serializers import ProfileSerializer
 from rest_framework import serializers
 
@@ -16,9 +16,16 @@ class ScrapSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'post']
 
 
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = ['id', 'comment', 'url']
+
+
 class CommentSerializer(serializers.ModelSerializer):
     user = ProfileSerializer(read_only=True)
     place = PlaceSerializer(read_only=True)
+    place_img = ImageSerializer(read_only=True)
 
     class Meta:
         model = Comment
@@ -28,7 +35,7 @@ class CommentSerializer(serializers.ModelSerializer):
 class CommentCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'post', 'place', 'place_img', 'description']
+        fields = ['id', 'user', 'post', 'place', 'description']
 
 
 class PostDetailSerializer(serializers.ModelSerializer):
