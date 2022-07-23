@@ -13,6 +13,19 @@ class DateTime(models.Model):
 
 
 class Post(DateTime):
+    LOCATION_CHOICES = (
+        ('신촌동', '신촌동'),
+        ('창천동', '창천동'),
+        ('연희동', '연희동'),
+        ('대현동', '대현동'),
+        ('대신동', '대신동'),
+        ('연남동', '연남동'),
+        ('서교동', '서교동'),
+        ('동교동', '동교동'),
+        ('합정동', '합정동'),
+        ('망원동', '망원동'),
+        ('상수동', '상수동'),
+    )
     TIME_CHOICES = (
         ('아침', '아침'),
         ('점심', '점심'),
@@ -21,7 +34,7 @@ class Post(DateTime):
     )
 
     user = models.ForeignKey(User, related_name='posts', on_delete=models.CASCADE)
-    location = models.TextField()
+    location = models.TextField(choices=LOCATION_CHOICES)
     time = models.CharField(choices=TIME_CHOICES, max_length=10)
     drink = models.PositiveIntegerField()
     member_count = models.PositiveIntegerField()
