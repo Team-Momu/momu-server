@@ -119,43 +119,42 @@ class KakaoView(views.APIView):
 class ProfileUpdateView(views.APIView):
     serializer_class = ProfileSerializer
     permission_classes = [IsAuthenticated]
-    # permission_classes = [UserPermission]
 
-    def get_object_user(self, pk):
-        return get_object_or_404(User, pk=pk)
-
+    # 프로필 조회
     def get(self, request):
         user = request.user
         serializer = self.serializer_class(user)
 
         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
+    # 프로필 설정
     def put(self, request):
         user = request.user
-
-        user_object = self.get_object_user(pk=str(user))
-        user_object.nickname = request.data['nickname']
-
         filename = request.FILES.get('profile_img')
+        request_data = {
+            'nickname': request.data['nickname'],
+            'profile_img': None
+        }
         if filename:
+            # 프로필 이미지 업로드
             url = s3client.upload(filename)
             if not url:
                 return Response({'message': '이미지 업로드 실패'}, status=HTTP_400_BAD_REQUEST)
-            user_object.profile_img = url
-            user_object.save()
+            request_data['profile_img'] = url
+
+        serializer = self.serializer_class(user, data=request_data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({
+                'message': '프로필 설정 성공',
+                'data': serializer.data,
+            }, status=HTTP_200_OK)
         else:
-            user_object.profile_img = None
-            user_object.save()
-
-        serializer = self.serializer_class(user_object)
-
-        return Response({
-            'message': '프로필 설정 성공',
-            'data': serializer.data,
-        }, status=HTTP_200_OK)
+            return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
 
 
 class RefreshTokenView(views.APIView):
+    # 로그인 연장
     def post(self, request):
         try:
             refresh_token = request.COOKIES.get('refresh_token')
@@ -167,6 +166,7 @@ class RefreshTokenView(views.APIView):
             if not VerifyToken(user.refresh_token, refresh_token):
                 return Response({'message': '토큰 재발급 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
 
+            # 토큰 재발급
             refresh_data = {'refresh': refresh_token}
             serializer = TokenRefreshSerializer(data=refresh_data)
             serializer.is_valid(raise_exception=True)
@@ -204,9 +204,9 @@ class RefreshTokenView(views.APIView):
 
 
 class MbtiView(views.APIView):
-    # permission_classes = [UserPermission]
     permission_classes = [IsAuthenticated]
 
+    # 먹BTI 설정
     def post(self, request):
         mbti = request.data['mbti']
 
@@ -229,15 +229,14 @@ class MbtiView(views.APIView):
 
 class ProfilePostView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    # permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
+    # 내가 작성한 큐레이션 목록 조회
     def get(self, request):
-        user = 1
-        # user = request.user
+        user = request.user
         user_serializer = ProfileSerializer(user)
 
         posts = Post.objects.filter(user_id=user)
-
         for post in posts:
             if Scrap.objects.filter(post=post.id, user=user).exists():
                 post.scrap_flag = True
@@ -255,18 +254,17 @@ class ProfilePostView(views.APIView, PaginationHandlerMixin):
 
 class ProfileScrapView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    # permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
+    # 내가 스크랩한 큐레이션 목록 조회
     def get(self, request):
-        user = 1
-        # user = request.user
+        user = request.user
         user_serializer = ProfileSerializer(user)
 
         scrap_list = Scrap.objects.filter(user=user).values_list('post')
         posts = Post.objects.filter(id__in=scrap_list)  # 스크랩 한 글 객체 목록
 
         cursor = self.paginate_queryset(posts)
-
         for c in cursor:
             c.scrap_flag = True
 

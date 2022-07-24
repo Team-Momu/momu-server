@@ -28,8 +28,8 @@ class CommentPagination(CursorPagination):
 
 class PlaceView(views.APIView):
     serializer_class = PlaceSerializer
-    # permission_classes = [UserPermission]
 
+    # 식당 검색
     def get(self, request):
         size = 15
         page = request.GET.get('page', 1)
@@ -40,6 +40,7 @@ class PlaceView(views.APIView):
         keyword = request.GET.get('keyword')
         rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
 
+        # 카카오맵 장소 검색 요청
         url = 'https://dapi.kakao.com/v2/local/search/keyword.json'
         rect = '126.86417624432379,37.599026970443035,126.962764139611,37.5318164676656'
         params = {'query': keyword, 'category_group_code': 'FD6', 'rect': rect, 'size': size, 'page': page}
@@ -50,6 +51,7 @@ class PlaceView(views.APIView):
 
         return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
+    """
     def post(self, request):
         request.data._mutable = True
 
@@ -71,16 +73,18 @@ class PlaceView(views.APIView):
 
             else:
                 return Response({'message': '잘못된 형식의 요청입니다'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
+    """
 
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    # permission_classes = [UserPermission]
 
+    # 큐레이션 전체 목록 조회
     def get(self, request):
-        # user = request.user.id
+        # user = request.user
         user = 1
 
+        # 필터링
         location = request.GET.get('location')
         time = request.GET.get('time')
         drink = request.GET.get('drink')
@@ -94,7 +98,6 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
         posts = Post.objects.filter(**arguments)
         cursor = self.paginate_queryset(posts)
-
         for c in cursor:
             if Scrap.objects.filter(post=c, user=user).exists():
                 c.scrap_flag = True
@@ -106,14 +109,14 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
         return Response({'message': '게시글 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
+    # 큐레이션 생성
     def post(self, request):
-        # user = request.user.id
+        # user = request.user
         user = 1
-
         post_data = {
             'user': user, 'location': request.data['location'], 'time': request.data['time'],
             'drink': request.data['drink'], 'member_count': request.data['member_count']
-                     }
+        }
         serializer = PostCreateSerializer(data=post_data)
 
         if serializer.is_valid():
@@ -124,22 +127,25 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
-    # permission_classes = [UserPermission]
 
-    def get_object(self, pk):
+    def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
 
+    # 큐레이션 상세 조회
     def get(self, request, pk):
-        post = self.get_object(pk)
+        post = self.get_object_post(pk)
         serializer = self.serializer_class(post)
 
         return Response({'message': '게시글 상세 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
 
 class CommentView(views.APIView, PaginationHandlerMixin):
-    # permission_classes = [UserPermission]
     pagination_class = CommentPagination
 
+    def get_object_post(self, pk):
+        return get_object_or_404(Post, pk=pk)
+
+    # 답변 목록 조회
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
         comments = Comment.objects.filter(post_id=pk)
@@ -158,6 +164,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
                 'data': serializer.data['comments'],
             }, status=HTTP_200_OK)
 
+    # 답변 생성
     def post(self, request, pk):
         # 식당 등록
         place_data = request.data['place']
@@ -186,28 +193,27 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
         # 답글 등록
         filename = request.FILES.get('place_img')
-        if filename:
-            url = s3client.upload(filename)
-            if not url:
-                return Response({'message': '이미지 업로드 실패'}, status=HTTP_400_BAD_REQUEST)
-        else:
-            url = None
-
         comment_data = {
             # 'user': request.user.id,
             'user': 1,
             'post': pk,
             'place': place,
-            'place_img': url,
+            'place_img': None,
             'description': request.data['description']
         }
+        if filename:
+            # 이미지 업로드
+            url = s3client.upload(filename)
+            if not url:
+                return Response({'message': '이미지 업로드 실패'}, status=HTTP_400_BAD_REQUEST)
+            comment_data['place_img'] = url
 
         comment_serializer = CommentCreateSerializer(data=comment_data)
 
         if comment_serializer.is_valid():
             comment_serializer.save()
 
-            post = Post.objects.get(id=pk)
+            post = self.get_object_post(pk=pk)
             post.comment_count += 1
             post.save()
 
@@ -221,10 +227,10 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
 class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
-    # permission_classes = [UserPermission]
 
+    # 스크랩 생성
     def post(self, request):
-        # user = request.user.id
+        # user = request.user
         user = 1
 
         if not request.data or not request.data['post']:
@@ -237,9 +243,10 @@ class ScrapView(views.APIView):
             serializer.save()
             return Response({'message': '스크랩 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
         return Response({'message': '잘못된 형식의 요청입니다', 'data': serializer.errors}, status=HTTP_400_BAD_REQUEST)
-        
+
+    # 스크랩 취소
     def delete(self, request):
-        # user = request.user.id
+        # user = request.user
         user = 1
         post = request.data['post']
 
@@ -249,8 +256,6 @@ class ScrapView(views.APIView):
 
 
 class CommentSelectView(views.APIView):
-    # permission_classes = [UserPermission]
-
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
 
@@ -260,6 +265,7 @@ class CommentSelectView(views.APIView):
     def get_object_user(self, pk):
         return get_object_or_404(User, pk=pk)
 
+    # 답변 채택
     def post(self, request, post_pk, comment_pk):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
@@ -279,6 +285,7 @@ class CommentSelectView(views.APIView):
         post.save()
         return Response({'message': '답글 채택 성공'}, status=HTTP_201_CREATED)
 
+    # 채택 취소
     def delete(self, request, post_pk, comment_pk):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
@@ -297,4 +304,3 @@ class CommentSelectView(views.APIView):
         author.save()
         post.save()
         return Response({'message': '답글 채택 취소 성공'}, status=HTTP_200_OK)
-
