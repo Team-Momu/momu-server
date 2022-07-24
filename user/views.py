@@ -1,6 +1,5 @@
 import requests
 import jwt
-import hashlib
 from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth import get_user_model
 from rest_framework import views
@@ -8,15 +7,16 @@ from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, \
     HTTP_403_FORBIDDEN
-from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
-from user.serializers import *
-from user.permissions import UserPermission
 from rest_framework.permissions import IsAuthenticated
-from feed.models import Post, Scrap
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
+from .serializers import *
+from user.permissions import UserPermission
+from feed.models import Post, Scrap
 from .s3storages import s3client
 from feed.pagination import PaginationHandlerMixin
 from momu.settings import KAKAO_CONFIG, env
+from .utils import *
 
 User = get_user_model()
 
@@ -25,8 +25,8 @@ class PostPagination(CursorPagination):
     ordering = '-created_at'
 
 
-# TO REMOVE : 프론트 처리 파트 -> 인가 코드
 class KakaoAuthorizeView(views.APIView):
+    # 인가코드 요청 (프론트 처리 파트)
     def get(self, request):
         rest_api_key = KAKAO_CONFIG['KAKAO_REST_API_KEY']
         redirect_uri = KAKAO_CONFIG['KAKAO_REDIRECT_URI']
@@ -37,6 +37,7 @@ class KakaoAuthorizeView(views.APIView):
 
 
 class KakaoView(views.APIView):
+    # 회원가입, 로그인
     def get(self, request):
         code = request.GET.get('code')
         if not code:
@@ -87,15 +88,14 @@ class KakaoView(views.APIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
 
+        # 서비스 자체 토큰 생성
         momu_token = TokenObtainPairSerializer.get_token(user)
         refresh_token = str(momu_token)
         access_token = str(momu_token.access_token)
 
-        # TO FIX : refresh token 암호화 추가
-
         refresh_data = {
             'kakao_id': kakao_id,
-            'refresh_token': refresh_token,
+            'refresh_token': Encrypt(refresh_token),
         }
         refresh_serializer = UserSerializer(user, data=refresh_data)
         refresh_serializer.is_valid(raise_exception=True)
@@ -164,15 +164,14 @@ class RefreshTokenView(views.APIView):
 
             payload = jwt.decode(refresh_token, env('DJANGO_SECRET_KEY'), algorithms=['HS256'])
             user = get_object_or_404(User, pk=payload['user_id'])
-
-            if user.refresh_token != refresh_token:
+            if not VerifyToken(user.refresh_token, refresh_token):
                 return Response({'message': '토큰 재발급 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
 
-            refresh_data = {'refresh': request.COOKIES.get('refresh_token')}
+            refresh_data = {'refresh': refresh_token}
             serializer = TokenRefreshSerializer(data=refresh_data)
             serializer.is_valid(raise_exception=True)
 
-            user.refresh_token = serializer.data['refresh']
+            user.refresh_token = Encrypt(serializer.data['refresh'])
             user.save()
 
             response = Response({
@@ -195,6 +194,9 @@ class RefreshTokenView(views.APIView):
 
         # invalid 한 토큰
         except(jwt.exceptions.InvalidTokenError):
+            if user:
+                user.refresh_token = None
+                user.save()
             response = Response({'message': '로그인이 필요합니다'}, status=HTTP_401_UNAUTHORIZED)
             response.delete_cookie('refresh_token')
 
