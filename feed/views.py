@@ -111,8 +111,8 @@ class PostListView(views.APIView, PaginationHandlerMixin):
         user = 1
 
         post_data = {
-            'user': user, 'location': request.data['location'], 'time': request.data['time'],
-            'drink': request.data['drink'], 'member_count': request.data['member_count']
+            'user': user, 'location': request.data['location'], 'time': request.data['time'], 'drink': request.data['drink'],
+            'member_count': request.data['member_count'], 'description': request.data['description']
                      }
         serializer = PostCreateSerializer(data=post_data)
 
