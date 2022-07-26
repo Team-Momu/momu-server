@@ -168,7 +168,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
     def post(self, request, pk):
         # 식당 등록
         place_data = request.data['place']
-        place_id = place_data['place_id']
+        place_id = place_data['id']
         if not Place.objects.filter(place_id=place_id).exists():
             place_request_data = {
                 'place_id': place_id,
@@ -177,8 +177,8 @@ class CommentView(views.APIView, PaginationHandlerMixin):
                 'phone': place_data['phone'],
                 'road_address_name': place_data['road_address_name'],
                 'region': place_data['address_name'].split()[2],
-                'place_x': place_data['place_x'],
-                'place_y': place_data['place_y'],
+                'place_x': place_data['x'],
+                'place_y': place_data['y'],
                 'place_url': place_data['place_url']
             }
             place_serializer = PlaceSerializer(data=place_request_data)
