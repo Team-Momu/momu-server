@@ -19,9 +19,14 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    mbti = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = ['id', 'nickname', 'profile_img', 'mbti', 'level', 'select_count']
+
+    def get_mbti(self, obj):
+        return obj.mbti.mbti
 
 
 class ProfilePostSerializer(serializers.ModelSerializer):
