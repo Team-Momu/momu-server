@@ -3,7 +3,6 @@ from user.serializers import ProfileSerializer
 from rest_framework import serializers
 
 
-
 class PlaceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Place
@@ -23,7 +22,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'post', 'place', 'place_img', 'description', 'select_flag']
+        fields = ['id', 'user', 'post', 'place', 'place_img', 'description', 'select_flag', 'created_at']
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):

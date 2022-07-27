@@ -19,8 +19,6 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
-    mbti = MbtiSerializer(read_only=True)
-
     class Meta:
         model = User
         fields = ['id', 'nickname', 'profile_img', 'mbti', 'level', 'select_count']
