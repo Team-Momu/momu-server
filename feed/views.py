@@ -148,7 +148,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
     # 답변 목록 조회
     def get(self, request, pk):
         post = get_object_or_404(Post, pk=pk)
-        comments = Comment.objects.filter(post_id=pk)
+        comments = Comment.objects.filter(post_id=post.id)
 
         cursor = self.paginate_queryset(comments)
         if cursor is not None:
@@ -158,7 +158,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
                 'data': serializer.data,
             }, status=HTTP_200_OK)
         else:
-            serializer = PostDetailSerializer(post)
+            serializer = CommentSerializer(comments)
             return Response({
                 'message': '답변 조회 성공',
                 'data': serializer.data['comments'],

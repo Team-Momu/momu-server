@@ -18,11 +18,15 @@ class ScrapSerializer(serializers.ModelSerializer):
 
 class CommentSerializer(serializers.ModelSerializer):
     user = ProfileSerializer(read_only=True)
+    post_user = serializers.SerializerMethodField()
     place = PlaceSerializer(read_only=True)
 
     class Meta:
         model = Comment
-        fields = ['id', 'user', 'post', 'place', 'place_img', 'description', 'select_flag', 'created_at']
+        fields = ['id', 'user', 'post', 'post_user', 'place', 'place_img', 'description', 'select_flag', 'created_at']
+
+    def get_post_user(self, obj):
+        return obj.post.user.id
 
 
 class CommentCreateSerializer(serializers.ModelSerializer):
