@@ -231,7 +231,7 @@ class ScrapView(views.APIView):
 
     # 스크랩 생성
     def post(self, request):
-        user = request.user
+        user = request.user.id
 
         if not request.data or not request.data['post']:
             return Response({'message': '잘못된 형식의 요청입니다: post'}, status=HTTP_408_REQUEST_TIMEOUT)
