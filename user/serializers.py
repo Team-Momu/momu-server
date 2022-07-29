@@ -35,5 +35,5 @@ class ProfilePostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ['id', 'user', 'location', 'time', 'drink', 'member_count',
+        fields = ['id', 'user', 'created_at', 'location', 'time', 'drink', 'member_count',
                   'comment_count', 'description', 'selected_flag', 'scrap_flag']
