@@ -78,11 +78,11 @@ class PlaceView(views.APIView):
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
+    permission_classes = [IsAuthenticated]
 
     # 큐레이션 전체 목록 조회
     def get(self, request):
-        # user = request.user
-        user = 1
+        user = request.user
 
         # 필터링
         location = request.GET.get('location')
@@ -111,8 +111,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
     # 큐레이션 생성
     def post(self, request):
-        # user = request.user
-        user = 1
+        user = request.user
         post_data = {
             'user': user, 'location': request.data['location'], 'time': request.data['time'], 'drink': request.data['drink'],
             'member_count': request.data['member_count'], 'description': request.data['description']
@@ -127,6 +126,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -141,6 +141,7 @@ class PostDetailView(views.APIView):
 
 class CommentView(views.APIView, PaginationHandlerMixin):
     pagination_class = CommentPagination
+    permission_classes = [IsAuthenticated]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -194,8 +195,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
         # 답글 등록
         filename = request.FILES.get('place_img')
         comment_data = {
-            # 'user': request.user.id,
-            'user': 1,
+            'user': request.user.id,
             'post': pk,
             'place': place,
             'place_img': None,
@@ -227,11 +227,11 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
 class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
+    permission_classes = [IsAuthenticated]
 
     # 스크랩 생성
     def post(self, request):
-        # user = request.user
-        user = 1
+        user = request.user
 
         if not request.data or not request.data['post']:
             return Response({'message': '잘못된 형식의 요청입니다: post'}, status=HTTP_408_REQUEST_TIMEOUT)
@@ -246,8 +246,7 @@ class ScrapView(views.APIView):
 
     # 스크랩 취소
     def delete(self, request):
-        # user = request.user
-        user = 1
+        user = request.user
         post = request.data['post']
 
         Scrap.objects.filter(user=user, post=post).delete()
