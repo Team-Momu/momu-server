@@ -111,7 +111,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
     # 큐레이션 생성
     def post(self, request):
-        user = request.user
+        user = request.user.id
         post_data = {
             'user': user, 'location': request.data['location'], 'time': request.data['time'], 'drink': request.data['drink'],
             'member_count': request.data['member_count'], 'description': request.data['description']
