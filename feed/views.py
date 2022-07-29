@@ -269,8 +269,7 @@ class CommentSelectView(views.APIView):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
 
-        # if int(str(post.user)) != request.user.id:
-        if int(str(post.user)) != 1:
+        if int(str(post.user)) != request.user.id:
             return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
         if post.selected_flag:
             return Response({'message': '이미 답변이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
@@ -289,8 +288,7 @@ class CommentSelectView(views.APIView):
         post = self.get_object_post(pk=post_pk)
         comment = self.get_object_comment(pk=comment_pk)
 
-        # if int(str(post.user)) != request.user.id:
-        if int(str(post.user)) != 1:
+        if int(str(post.user)) != request.user.id:
             return Response({'message': '해당 게시글에서 답글 채택을 취소할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
         if not comment.select_flag:
             return Response({'message': '해당 답글이 채택되어 있지 않습니다'}, status=HTTP_400_BAD_REQUEST)
