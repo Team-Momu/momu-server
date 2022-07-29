@@ -133,7 +133,12 @@ class PostDetailView(views.APIView):
 
     # 큐레이션 상세 조회
     def get(self, request, pk):
+        user = request.user
         post = self.get_object_post(pk)
+
+        if Scrap.objects.filter(post=post, user=user).exists():
+            post.scrap_flag=True
+
         serializer = self.serializer_class(post)
 
         return Response({'message': '게시글 상세 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)

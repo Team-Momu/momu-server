@@ -237,9 +237,6 @@ class ProfilePostView(views.APIView, PaginationHandlerMixin):
         user_serializer = ProfileSerializer(user)
 
         posts = Post.objects.filter(user_id=user)
-        for post in posts:
-            if Scrap.objects.filter(post=post.id, user=user).exists():
-                post.scrap_flag = True
 
         cursor = self.paginate_queryset(posts)
         for c in cursor:
