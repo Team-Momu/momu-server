@@ -51,29 +51,33 @@ class PlaceView(views.APIView):
 
         return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
 
-    """
     def post(self, request):
-        request.data._mutable = True
+        place_data = {
+            'place_id': request.data.get('id'),
+            'place_name': request.data.get('place_name'),
+            'category_name': request.data.get('category_name').split(' > ')[1],
+            'phone': request.data.get('phone'),
+            'road_address_name': request.data.get('road_address_name'),
+            'region': request.data.get('address_name').split()[2],
+            'place_x': request.data.get('x'),
+            'place_y': request.data.get('y'),
+            'place_url': request.data.get('place_url')
+        }
 
-        data = request.data
-        data['region'] = data['region'].split()[2]
-        data['category_name'] = data['category_name'].split(' > ')[1]
-
-        if Place.objects.filter(place_id=data['place_id']).exists():
-            place_object = Place.objects.get(place_id=data['place_id'])
-            place_id = self.serializer_class(place_object).data['id']
-            return Response({'message': '이미 존재하는 식당', 'place_id': place_id}, status=HTTP_200_OK)
+        if Place.objects.filter(place_id=place_data['place_id']).exists():
+            place_object = Place.objects.get(place_id=place_data['place_id'])
+            serializer = self.serializer_class(place_object)
+            return Response({'message': '이미 존재하는 식당', 'place_id': serializer.data['id'], 'place': serializer.data}, status=HTTP_200_OK)
 
         else:
-            serializer = self.serializer_class(data=data)
+            serializer = self.serializer_class(data=place_data)
 
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': '식당 저장 성공', 'place_id': serializer.data['id']}, status=HTTP_201_CREATED)
+                return Response({'message': '식당 저장 성공', 'place_id': serializer.data['id'], 'place': serializer.data}, status=HTTP_201_CREATED)
 
             else:
                 return Response({'message': '잘못된 형식의 요청입니다'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
-    """
 
 
 class PostListView(views.APIView, PaginationHandlerMixin):
@@ -173,6 +177,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
     # 답변 생성
     def post(self, request, pk):
         # 식당 등록
+        """
         place_data = request.data.get('place')
         if not place_data:
             return Response({'message': '잘못된 형식의 요청입니다: 식당 정보'}, status=HTTP_400_BAD_REQUEST)
@@ -199,13 +204,14 @@ class CommentView(views.APIView, PaginationHandlerMixin):
         else:
             place_object = Place.objects.get(place_id=place_id)
             place = place_object.id
+        """
 
         # 답글 등록
         filename = request.FILES.get('place_img')
         comment_data = {
             'user': request.user.id,
             'post': pk,
-            'place': place,
+            'place': request.data.get('place_id'),
             'place_img': None,
             'description': request.data.get('description')
         }
