@@ -208,8 +208,7 @@ class MbtiView(views.APIView):
 
     # 먹BTI 설정
     def post(self, request):
-        mbti = request.data['mbti']
-
+        mbti = request.data.get('mbti')
         if Mbti.objects.filter(mbti=mbti).exists():
             mbti_object = Mbti.objects.get(mbti=mbti)
             serializer = MbtiSerializer(mbti_object)

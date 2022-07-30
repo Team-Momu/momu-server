@@ -113,8 +113,8 @@ class PostListView(views.APIView, PaginationHandlerMixin):
     def post(self, request):
         user = request.user.id
         post_data = {
-            'user': user, 'location': request.data['location'], 'time': request.data['time'], 'drink': request.data['drink'],
-            'member_count': request.data['member_count'], 'description': request.data['description']
+            'user': user, 'location': request.data.get('location'), 'time': request.data.get('time'), 'drink': request.data.get('drink'),
+            'member_count': request.data.get('member_count'), 'description': request.data.get('description')
         }
         serializer = PostCreateSerializer(data=post_data)
 
@@ -173,19 +173,22 @@ class CommentView(views.APIView, PaginationHandlerMixin):
     # 답변 생성
     def post(self, request, pk):
         # 식당 등록
-        place_data = request.data['place']
-        place_id = place_data['id']
+        place_data = request.data.get('place')
+        if not place_data:
+            return Response({'message': '잘못된 형식의 요청입니다: 식당 정보'}, status=HTTP_400_BAD_REQUEST)
+
+        place_id = place_data.get('id')
         if not Place.objects.filter(place_id=place_id).exists():
             place_request_data = {
                 'place_id': place_id,
-                'place_name': place_data['place_name'],
-                'category_name': place_data['category_name'].split(' > ')[1],
-                'phone': place_data['phone'],
-                'road_address_name': place_data['road_address_name'],
-                'region': place_data['address_name'].split()[2],
-                'place_x': place_data['x'],
-                'place_y': place_data['y'],
-                'place_url': place_data['place_url']
+                'place_name': place_data.get('place_name'),
+                'category_name': place_data.get('category_name').split(' > ')[1],
+                'phone': place_data.get('phone'),
+                'road_address_name': place_data.get('road_address_name'),
+                'region': place_data.get('address_name').split()[2],
+                'place_x': place_data.get('x'),
+                'place_y': place_data.get('y'),
+                'place_url': place_data.get('place_url')
             }
             place_serializer = PlaceSerializer(data=place_request_data)
             if place_serializer.is_valid():
@@ -204,7 +207,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
             'post': pk,
             'place': place,
             'place_img': None,
-            'description': request.data['description']
+            'description': request.data.get('description')
         }
         if filename:
             # 이미지 업로드
@@ -252,10 +255,12 @@ class ScrapView(views.APIView):
     # 스크랩 취소
     def delete(self, request):
         user = request.user
-        post = request.data['post']
+        post = request.data.get('post')
+
+        if not post:
+            return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
 
         Scrap.objects.filter(user=user, post=post).delete()
-
         return Response({'message': '스크랩 취소 성공 '}, status=HTTP_200_OK)
 
 
