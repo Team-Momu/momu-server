@@ -67,14 +67,14 @@ class PlaceView(views.APIView):
         if Place.objects.filter(place_id=place_data['place_id']).exists():
             place_object = Place.objects.get(place_id=place_data['place_id'])
             serializer = self.serializer_class(place_object)
-            return Response({'message': '이미 존재하는 식당', 'place_id': serializer.data['id'], 'place': serializer.data}, status=HTTP_200_OK)
+            return Response({'message': '이미 존재하는 식당', 'data': serializer.data}, status=HTTP_200_OK)
 
         else:
             serializer = self.serializer_class(data=place_data)
 
             if serializer.is_valid():
                 serializer.save()
-                return Response({'message': '식당 저장 성공', 'place_id': serializer.data['id'], 'place': serializer.data}, status=HTTP_201_CREATED)
+                return Response({'message': '식당 저장 성공', 'data': serializer.data}, status=HTTP_201_CREATED)
 
             else:
                 return Response({'message': '잘못된 형식의 요청입니다'}, serializer.errors, status=HTTP_400_BAD_REQUEST)
