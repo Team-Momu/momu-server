@@ -294,6 +294,14 @@ class CommentSelectView(views.APIView):
         comment.select_flag = True
         author = self.get_object_user(pk=int(str(comment.user)))
         author.select_count += 1
+
+        if author.select_count == 10:
+            author.level = 4
+        elif author.select_count == 50:
+            author.level = 3
+        elif author.select_count == 100:
+            author.level == 2
+
         comment.save()
         author.save()
         post.save()
@@ -313,6 +321,14 @@ class CommentSelectView(views.APIView):
         comment.select_flag = False
         author = self.get_object_user(pk=int(str(comment.user)))
         author.select_count -= 1
+
+        if author.select_count == 99:
+            author.level = 3
+        elif author.select_count == 49:
+            author.level = 4
+        elif author.select_count == 9:
+            author.level = 5
+
         comment.save()
         author.save()
         post.save()
