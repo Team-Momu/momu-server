@@ -147,13 +147,7 @@ class ProfileUpdateView(views.APIView):
         serializer = self.serializer_class(user, data=request_data)
         if serializer.is_valid():
             serializer.save()
-            try:
-                return Response({
-                    'message': '프로필 설정 성공',
-                }, status=HTTP_200_OK)
-            except:
-                return Response({'message': 'save 실패'}, status=HTTP_408_REQUEST_TIMEOUT)
-
+            return Response({'message': '프로필 설정 성공'}, status=HTTP_200_OK)
         else:
             return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
 
