@@ -1,29 +1,23 @@
 # MOMU
 
----
-
 https://momueat.com/
 
-## ✏️ API 명세서
+<br>
 
----
+## ✏️ API 명세서
 
 <div align=center>
 
 ### [️API Document Link](https://www.notion.so/Momu-API-26ed5c6f70874d09aac53dc738568ba3)
 
-</div>
-
+</div><br>
 
 ## 🔒 개발 아키텍처
 
----
-
 <img width="626" alt="스크린샷 2022-07-31 오후 8 55 12" src="https://user-images.githubusercontent.com/78442839/182025167-9dff2c8b-f71d-490d-97b0-8f783edfa57a.png">
+<br>
 
 ## 🛠 기술 스택
-
----
 
 | **Section**       | Tech                         |
 | ---------------- |------------------------------|
@@ -33,9 +27,9 @@ https://momueat.com/
 | **웹 서버**      | EC2, Nginx, gunicorn, Django |
 | **인프라**       | Docker, Github Action        |
 
-## 🔥 파트 분담 및 워크플로우
+<br>
 
----
+## 🔥 파트 분담 및 워크플로우
 
 ### 도연
 
