@@ -58,3 +58,13 @@ https://momueat.com/
 - [X] 큐레이션 답글 생성
 - [X] 큐레이션 답글 목록 조회
 - [X] 큐레이션 답글 채택
+
+<br>
+
+## 👏 팀원
+
+| <img src ="https://avatars.githubusercontent.com/u/89721027?v=4" width = 150/> | <img src ="https://avatars.githubusercontent.com/u/87080940?v=4" width = 150/> | <img src ="https://avatars.githubusercontent.com/u/81256252?v=4" width = 150/> | <img src ="https://avatars.githubusercontent.com/u/78442839?v=4" width = 150/> |
+|:------------------------------------------------------------------------------:|:------------------------------------------------------------------------------:|:------------------------------------------------------------------------------:|:------------------------------------------------------------------------------:|
+|                                      김채림                                       |                                      전시원                                       |                                      김도연                                       |                                      신예진                                       |
+|                <a href ="https://github.com/chaaerim">@chaaerim</a>                |                <a href ="https://github.com/siwonblue">@siwonblue</a>                |              <a href ="https://github.com/doyeoo">@doyeoo</a>              |              <a href ="https://github.com/yesjjin99">@yesjjin99</a>              |
+|                                     프론트엔드                                      |                                     프론트엔드                                      |                                      백엔드                                       |                                      백엔드                                       |
