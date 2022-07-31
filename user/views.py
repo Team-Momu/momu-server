@@ -6,7 +6,7 @@ from rest_framework import views
 from rest_framework.pagination import CursorPagination
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, \
-    HTTP_403_FORBIDDEN
+    HTTP_403_FORBIDDEN, HTTP_408_REQUEST_TIMEOUT
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer, TokenRefreshSerializer
 
@@ -144,7 +144,10 @@ class ProfileUpdateView(views.APIView):
 
         serializer = self.serializer_class(user, data=request_data)
         if serializer.is_valid():
-            serializer.save()
+            try:
+                serializer.save()
+            except:
+                return Response({'message':'save 실패'}, status=HTTP_408_REQUEST_TIMEOUT)
             return Response({
                 'message': '프로필 설정 성공',
                 'data': serializer.data,
