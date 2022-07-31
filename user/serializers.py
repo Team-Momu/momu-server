@@ -29,6 +29,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         return obj.mbti.mbti
 
 
+class ProfileDetailSerializer(serializers.ModelSerializer):
+    mbti = MbtiSerializer(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'nickname', 'profile_img', 'mbti', 'level', 'select_count']
+
+
 class ProfilePostSerializer(serializers.ModelSerializer):
     user = ProfileSerializer(read_only=True)
     scrap_flag = serializers.BooleanField(default=False)
