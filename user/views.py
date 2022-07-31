@@ -150,7 +150,6 @@ class ProfileUpdateView(views.APIView):
             try:
                 return Response({
                     'message': '프로필 설정 성공',
-                    'data': serializer.data,
                 }, status=HTTP_200_OK)
             except:
                 return Response({'message': 'save 실패'}, status=HTTP_408_REQUEST_TIMEOUT)
