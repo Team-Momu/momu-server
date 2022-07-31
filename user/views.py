@@ -108,8 +108,10 @@ class KakaoView(views.APIView):
             'refresh_token': refresh_token,
         }, status=status_code)
 
-        response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
+        response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None,
+                            secure=True)
+        response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None,
+                            secure=True)
         # response.set_cookie('access_token', access_token, httponly=True)
         # response.set_cookie('refresh_token', refresh_token, httponly=True)
 
@@ -144,14 +146,15 @@ class ProfileUpdateView(views.APIView):
 
         serializer = self.serializer_class(user, data=request_data)
         if serializer.is_valid():
+            serializer.save()
             try:
-                serializer.save()
+                return Response({
+                    'message': '프로필 설정 성공',
+                    'data': serializer.data,
+                }, status=HTTP_200_OK)
             except:
-                return Response({'message':'save 실패'}, status=HTTP_408_REQUEST_TIMEOUT)
-            return Response({
-                'message': '프로필 설정 성공',
-                'data': serializer.data,
-            }, status=HTTP_200_OK)
+                return Response({'message': 'save 실패'}, status=HTTP_408_REQUEST_TIMEOUT)
+
         else:
             return Response({'message': '잘못된 형식의 요청입니다'}, status=HTTP_400_BAD_REQUEST)
 
@@ -182,8 +185,10 @@ class RefreshTokenView(views.APIView):
                 'user': user.id,
             }, status=HTTP_201_CREATED)
 
-            response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com', samesite=None, secure=True)
-            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com', samesite=None, secure=True)
+            response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com',
+                                samesite=None, secure=True)
+            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com',
+                                samesite=None, secure=True)
             # response.set_cookie('access_token', serializer.data['access'], httponly=True)
             # response.set_cookie('refresh token', serializer.data['refresh'], httponly=True)
             return response
