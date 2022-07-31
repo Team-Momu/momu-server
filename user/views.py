@@ -123,7 +123,7 @@ class ProfileUpdateView(views.APIView):
     # 프로필 조회
     def get(self, request):
         user = request.user
-        serializer = self.serializer_class(user)
+        serializer = ProfileDetailSerializer(user)
 
         return Response({'message': '프로필 조회 성공', 'data': serializer.data}, status=HTTP_200_OK)
 
