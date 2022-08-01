@@ -112,8 +112,6 @@ class KakaoView(views.APIView):
                             secure=True)
         response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None,
                             secure=True)
-        # response.set_cookie('access_token', access_token, httponly=True)
-        # response.set_cookie('refresh_token', refresh_token, httponly=True)
 
         return response
 
@@ -182,8 +180,7 @@ class RefreshTokenView(views.APIView):
                                 samesite=None, secure=True)
             response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com',
                                 samesite=None, secure=True)
-            # response.set_cookie('access_token', serializer.data['access'], httponly=True)
-            # response.set_cookie('refresh token', serializer.data['refresh'], httponly=True)
+
             return response
 
         # 리프레시 토큰 만료
