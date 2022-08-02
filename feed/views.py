@@ -32,7 +32,7 @@ class PlaceView(views.APIView):
     # 식당 검색
     def get(self, request):
         size = 15
-        page = request.GET.get('page', 1)
+        page = int(request.GET.get('page', 1))
 
         if 'keyword' not in request.GET or not request.GET.get('keyword'):
             return Response(status=HTTP_400_BAD_REQUEST)
@@ -47,9 +47,12 @@ class PlaceView(views.APIView):
         headers = {'Authorization': 'KakaoAK ' + rest_api_key}
 
         data = requests.get(url, params=params, headers=headers).json()['documents']
-        total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
+        total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']/size
 
-        return Response({'message': '식당 검색 성공', 'data': data, 'page': page, 'total': total}, status=HTTP_200_OK)
+        previous = None if page == 1 else page-1
+        next = None if page > total or page == 45 else page+1
+
+        return Response({'message': '식당 검색 성공', 'previous': previous, 'next': next, 'total': total, 'data': data}, status=HTTP_200_OK)
 
     def post(self, request):
         place_data = {
