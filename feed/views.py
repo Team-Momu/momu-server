@@ -297,7 +297,7 @@ class CommentSelectView(views.APIView):
 
         if int(str(post.user)) != request.user.id:
             return Response({'message': '해당 게시글에서 답변을 채택할 권한이 없습니다'}, status=HTTP_403_FORBIDDEN)
-        if int(str(post.user)) == request.user.id:
+        if int(str(comment.user)) == int(str(post.user)) and int(str(comment.user)) == request.user.id:
             return Response({'message': '해당 큐레이션의 작성자가 생성한 답변으로 채택할 수 없습니다'}, status=HTTP_400_BAD_REQUEST)
         if post.selected_flag:
             return Response({'message': '이미 답변이 채택된 큐레이션입니다'}, status=HTTP_409_CONFLICT)
