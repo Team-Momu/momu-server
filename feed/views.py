@@ -54,7 +54,7 @@ class PlaceView(views.APIView):
         previous = None if page == 1 else page - 1
         next = None if page >= total_page or page >= 3 else page + 1
 
-        if page > total_page or page >= 3:
+        if page > total_page or page > 3:
             data = None
 
         return Response({'message': '식당 검색 성공', 'previous': previous, 'next': next, 'total': total, 'total_page': total_page, 'data': data}, status=HTTP_200_OK)
