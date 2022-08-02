@@ -177,9 +177,9 @@ class RefreshTokenView(views.APIView):
             }, status=HTTP_201_CREATED)
 
             response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com',
-                                samesite=None, secure=False)
+                                samesite=None, secure=True)
             response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com',
-                                samesite=None, secure=False)
+                                samesite=None, secure=True)
 
             return response
 
