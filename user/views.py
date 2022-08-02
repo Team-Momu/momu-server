@@ -118,7 +118,7 @@ class KakaoView(views.APIView):
 
 class ProfileUpdateView(views.APIView):
     serializer_class = ProfileSerializer
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     # 프로필 조회
     def get(self, request):
@@ -202,7 +202,7 @@ class RefreshTokenView(views.APIView):
 
 
 class MbtiView(views.APIView):
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     # 먹BTI 설정
     def post(self, request):
@@ -226,7 +226,7 @@ class MbtiView(views.APIView):
 
 class ProfilePostView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     # 내가 작성한 큐레이션 목록 조회
     def get(self, request):
@@ -252,7 +252,7 @@ class ProfilePostView(views.APIView, PaginationHandlerMixin):
 
 class ProfileScrapView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     # 내가 스크랩한 큐레이션 목록 조회
     def get(self, request):

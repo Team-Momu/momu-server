@@ -90,7 +90,7 @@ class PlaceView(views.APIView):
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     # 큐레이션 전체 목록 조회
     def get(self, request):
@@ -138,7 +138,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -158,7 +158,7 @@ class PostDetailView(views.APIView):
 
 class CommentView(views.APIView, PaginationHandlerMixin):
     pagination_class = CommentPagination
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -249,7 +249,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
 class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     # 스크랩 생성
     def post(self, request):
@@ -279,7 +279,7 @@ class ScrapView(views.APIView):
 
 
 class CommentSelectView(views.APIView):
-    permission_classes = [UserPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
