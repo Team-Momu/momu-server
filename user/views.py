@@ -118,7 +118,7 @@ class KakaoView(views.APIView):
 
 class ProfileUpdateView(views.APIView):
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 프로필 조회
     def get(self, request):
@@ -202,7 +202,7 @@ class RefreshTokenView(views.APIView):
 
 
 class MbtiView(views.APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 먹BTI 설정
     def post(self, request):
