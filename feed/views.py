@@ -9,7 +9,7 @@ from rest_framework.pagination import CursorPagination
 
 from .models import Post, Place, Comment, Scrap
 from user.models import User
-from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer,\
+from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerializer, \
     PostListSerializer, PostCreateSerializer, ScrapSerializer, CommentCreateSerializer
 
 from .pagination import PaginationHandlerMixin
@@ -49,7 +49,7 @@ class PlaceView(views.APIView):
 
         data = requests.get(url, params=params, headers=headers).json()['documents']
         total = requests.get(url, params=params, headers=headers).json()['meta']['total_count']
-        total_page = math.ceil(total/size)
+        total_page = math.ceil(total / size)
 
         previous = None if page == 1 else page - 1
         next = None if page >= total_page or page >= 3 else page + 1
@@ -57,7 +57,9 @@ class PlaceView(views.APIView):
         if page > total_page or page > 3:
             data = None
 
-        return Response({'message': '식당 검색 성공', 'previous': previous, 'next': next, 'total': total, 'total_page': total_page, 'data': data}, status=HTTP_200_OK)
+        return Response(
+            {'message': '식당 검색 성공', 'previous': previous, 'next': next, 'total': total, 'total_page': total_page,
+             'data': data}, status=HTTP_200_OK)
 
     def post(self, request):
         place_data = {
@@ -90,7 +92,7 @@ class PlaceView(views.APIView):
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 큐레이션 전체 목록 조회
     def get(self, request):
@@ -125,7 +127,8 @@ class PostListView(views.APIView, PaginationHandlerMixin):
     def post(self, request):
         user = request.user.id
         post_data = {
-            'user': user, 'location': request.data.get('location'), 'time': request.data.get('time'), 'drink': request.data.get('drink'),
+            'user': user, 'location': request.data.get('location'), 'time': request.data.get('time'),
+            'drink': request.data.get('drink'),
             'member_count': request.data.get('member_count'), 'description': request.data.get('description')
         }
         serializer = PostCreateSerializer(data=post_data)
@@ -138,7 +141,7 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
 class PostDetailView(views.APIView):
     serializer_class = PostDetailSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -149,7 +152,7 @@ class PostDetailView(views.APIView):
         post = self.get_object_post(pk)
 
         if Scrap.objects.filter(post=post, user=user).exists():
-            post.scrap_flag=True
+            post.scrap_flag = True
 
         serializer = self.serializer_class(post)
 
@@ -158,7 +161,7 @@ class PostDetailView(views.APIView):
 
 class CommentView(views.APIView, PaginationHandlerMixin):
     pagination_class = CommentPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -249,7 +252,7 @@ class CommentView(views.APIView, PaginationHandlerMixin):
 
 class ScrapView(views.APIView):
     serializer_class = ScrapSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 스크랩 생성
     def post(self, request):
@@ -279,7 +282,7 @@ class ScrapView(views.APIView):
 
 
 class CommentSelectView(views.APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     def get_object_post(self, pk):
         return get_object_or_404(Post, pk=pk)
@@ -317,7 +320,9 @@ class CommentSelectView(views.APIView):
         comment.save()
         author.save()
         post.save()
-        return Response({'message': '답글 채택 성공'}, status=HTTP_201_CREATED)
+        return Response({'message': '답글 채택 성공', 'data': {'post_id': post.id, 'post_select': post.selected_flag,
+                                                         'comment_id': comment.id, 'comment_select': comment.select_flag}},
+                        status=HTTP_201_CREATED)
 
     # 채택 취소
     def delete(self, request, post_pk, comment_pk):
@@ -344,4 +349,5 @@ class CommentSelectView(views.APIView):
         comment.save()
         author.save()
         post.save()
-        return Response({'message': '답글 채택 취소 성공'}, status=HTTP_200_OK)
+        return Response({'message': '답글 채택 취소 성공', 'data': {'post_id': post.id, 'post_select': post.selected_flag,
+                                                         'comment_id': comment.id, 'comment_select': comment.select_flag}}, status=HTTP_200_OK)

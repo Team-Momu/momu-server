@@ -110,15 +110,15 @@ class KakaoView(views.APIView):
 
         response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None,
                             secure=True)
-        response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None,
-                            secure=True)
+        #리프레시 토큰 주석
+        #response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
 
         return response
 
 
 class ProfileUpdateView(views.APIView):
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 프로필 조회
     def get(self, request):
@@ -178,8 +178,7 @@ class RefreshTokenView(views.APIView):
 
             response.set_cookie('access_token', serializer.data['access'], httponly=True, domain='momueat.com',
                                 samesite=None, secure=True)
-            response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com',
-                                samesite=None, secure=True)
+            #response.set_cookie('refresh token', serializer.data['refresh'], httponly=True, domain='momueat.com',samesite=None, secure=True)
 
             return response
 
@@ -202,7 +201,7 @@ class RefreshTokenView(views.APIView):
 
 
 class MbtiView(views.APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 먹BTI 설정
     def post(self, request):
@@ -226,7 +225,7 @@ class MbtiView(views.APIView):
 
 class ProfilePostView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 내가 작성한 큐레이션 목록 조회
     def get(self, request):
@@ -252,7 +251,7 @@ class ProfilePostView(views.APIView, PaginationHandlerMixin):
 
 class ProfileScrapView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [IsAuthenticated]
+    permission_classes = [UserPermission]
 
     # 내가 스크랩한 큐레이션 목록 조회
     def get(self, request):
