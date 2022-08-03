@@ -110,6 +110,7 @@ class KakaoView(views.APIView):
 
         response.set_cookie('access_token', access_token, httponly=True, domain='momueat.com', samesite=None,
                             secure=True)
+        #리프레시 토큰 주석
         #response.set_cookie('refresh_token', refresh_token, httponly=True, domain='momueat.com', samesite=None, secure=True)
 
         return response
