@@ -92,7 +92,7 @@ class PlaceView(views.APIView):
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    permission_classes = [UserPermission]
+    #permission_classes = [UserPermission]
 
     # 큐레이션 전체 목록 조회
     def get(self, request):
@@ -112,9 +112,11 @@ class PostListView(views.APIView, PaginationHandlerMixin):
 
         posts = Post.objects.filter(**arguments)
         cursor = self.paginate_queryset(posts)
-        for c in cursor:
-            if Scrap.objects.filter(post=c, user=user).exists():
-                c.scrap_flag = True
+
+        if user.id:
+            for c in cursor:
+                if Scrap.objects.filter(post=c, user=user).exists():
+                    c.scrap_flag = True
 
         if cursor is not None:
             serializer = self.get_paginated_response(PostListSerializer(cursor, many=True).data)
