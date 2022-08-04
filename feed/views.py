@@ -13,7 +13,7 @@ from .serializers import PlaceSerializer, CommentSerializer, PostDetailSerialize
     PostListSerializer, PostCreateSerializer, ScrapSerializer, CommentCreateSerializer
 
 from .pagination import PaginationHandlerMixin
-from user.permissions import UserPermission
+from user.permissions import UserPermission, PostPermission
 from rest_framework.permissions import IsAuthenticated
 from momu.settings import KAKAO_CONFIG
 from .s3storages import s3client
@@ -92,7 +92,7 @@ class PlaceView(views.APIView):
 
 class PostListView(views.APIView, PaginationHandlerMixin):
     pagination_class = PostPagination
-    #permission_classes = [UserPermission]
+    permission_classes = [PostPermission]
 
     # 큐레이션 전체 목록 조회
     def get(self, request):
