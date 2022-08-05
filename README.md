@@ -2,6 +2,7 @@
 
 https://momueat.com/
 
+![KakaoTalk_Photo_2022-08-04-22-15-47](https://user-images.githubusercontent.com/78442839/183028571-75ccdf6a-ab86-4e3c-9435-ad73b82207b1.png)
 <br>
 
 ## ✏️ API 명세서
